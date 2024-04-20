@@ -8,119 +8,26 @@ import {
   View,
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // components
 import {useAppTheme} from '../../App';
 import AllPasswords from '../components/AllPasswords';
 import {gap} from '../utils/Spacing';
-
-const tempPassword = [
-  {
-    id: 1,
-    name: 'GitHub',
-    userName:
-      'shahnawaz123@gmail.comshahnawaz123@gmail.comshahnawaz123@gmail.com',
-    password: 'GitHub123456',
-    category: 'Browser',
-  },
-  {
-    id: 2,
-    name: 'Figmashahnawaz123456789000000000',
-    userName: 'shahnawaz123@gmail.com',
-    password: 'Figma123456',
-    category: 'Browser',
-  },
-  {
-    id: 3,
-    name: 'Linkedin',
-    userName: 'shahnawaz123@gmail.com',
-    password: 'Linkedin123456',
-    category: 'App',
-  },
-  {
-    id: 4,
-    name: 'GitHub',
-    userName:
-      'shahnawaz123@gmail.comshahnawaz123@gmail.comshahnawaz123@gmail.com',
-    password: '123456',
-    category: 'Browser',
-  },
-  {
-    id: 5,
-    name: 'Figmashahnawaz123456789000000000',
-    userName: 'shahnawaz123@gmail.com',
-    password: '123456',
-    category: 'Browser',
-  },
-  {
-    id: 6,
-    name: 'Linkedin',
-    userName: 'shahnawaz123@gmail.com',
-    password: '123456',
-    category: 'App',
-  },
-  {
-    id: 7,
-    name: 'GitHub',
-    userName:
-      'shahnawaz123@gmail.comshahnawaz123@gmail.comshahnawaz123@gmail.com',
-    password: '123456',
-    category: 'Browser',
-  },
-  {
-    id: 8,
-    name: 'Figmashahnawaz123456789000000000',
-    userName: 'shahnawaz123@gmail.com',
-    password: '123456',
-    category: 'Browser',
-  },
-  {
-    id: 9,
-    name: 'Linkedin',
-    userName: 'shahnawaz123@gmail.com',
-    password: '123456',
-    category: 'App',
-  },
-  {
-    id: 10,
-    name: 'GitHub',
-    userName:
-      'shahnawaz123@gmail.comshahnawaz123@gmail.comshahnawaz123@gmail.com',
-    password: '123456',
-    category: 'Browser',
-  },
-  {
-    id: 11,
-    name: 'Figmashahnawaz123456789000000000',
-    userName: 'shahnawaz123@gmail.com',
-    password: '123456',
-    category: 'Browser',
-  },
-  {
-    id: 12,
-    name: 'Linkedin',
-    userName: 'shahnawaz123@gmail.com',
-    password: '123456',
-    category: 'App',
-  },
-];
+import {tempPassword, useDataContext} from '../context/DataContext';
 
 const Home = ({navigation}) => {
   const {
     colors: {primary, textPrimary},
   } = useAppTheme();
 
-  const [passwordList, setPasswordList] = useState({
-    status: 'loading',
-    count: {},
-    password: [],
-  });
+  // context where passwords are stored
+  const {passwordList, fetchPassword} = useDataContext();
 
+  // state for store password that i am getting from passwordList(context)
+  const [passwords, setPasswords] = useState([]);
   const [category, setCategory] = useState('All');
   const [status, setStatus] = useState('idle');
-  const prevPasswordListRef = useRef([]);
 
   // custom debouce for delay function invocation
   const customDebouce = (cb, timeout) => {
@@ -141,16 +48,13 @@ const Home = ({navigation}) => {
     const query = e[0];
 
     if (!query) {
-      setPasswordList(prev => ({
-        ...prev,
-        password: prevPasswordListRef.current,
-      }));
+      setPasswords(passwordList[category.toLocaleLowerCase()].data);
       return;
     }
 
     setStatus('loading');
 
-    const result = passwordList.password.filter(item => {
+    const result = tempPassword.filter(item => {
       if (category === 'App' || category === 'Browser')
         return (
           item.name.toUpperCase().includes(query.toUpperCase()) &&
@@ -159,7 +63,7 @@ const Home = ({navigation}) => {
 
       return item.name.toUpperCase().includes(query.toUpperCase());
     });
-    setPasswordList(prev => ({...prev, password: result}));
+    setPasswords(result);
 
     setStatus('success');
   }, 600);
@@ -170,30 +74,31 @@ const Home = ({navigation}) => {
 
     setStatus('loading');
     setCategory(value);
-
-    if (value === 'All') {
-      setPasswordList(prev => ({...prev, password: tempPassword}));
-      prevPasswordListRef.current = tempPassword;
-    } else {
-      const result = tempPassword.filter(item => item.category === value);
-      setPasswordList(prev => ({...prev, password: result}));
-      prevPasswordListRef.current = result;
-    }
-    setStatus('success');
   };
 
   useEffect(() => {
-    setTimeout(() => {
-      prevPasswordListRef.current = tempPassword;
-      setPasswordList({
-        status: 'success',
-        count: {all: 20, browser: 8, app: 12},
-        password: tempPassword,
-      });
-    }, 1000);
-  }, []);
+    if (category === 'All') {
+      passwordList.all.status === 'loading' && fetchPassword('All');
+      if (passwordList.all.status === 'success') {
+        setPasswords(passwordList.all.data);
+        setStatus('success');
+      }
+    } else if (category === 'App') {
+      passwordList.app.status === 'loading' && fetchPassword('App');
+      if (passwordList.app.status === 'success') {
+        setPasswords(passwordList.app.data);
+        setStatus('success');
+      }
+    } else if (category === 'Browser') {
+      passwordList.browser.status === 'loading' && fetchPassword('Browser');
+      if (passwordList.browser.status === 'success') {
+        setPasswords(passwordList.browser.data);
+        setStatus('success');
+      }
+    }
+  }, [passwordList, category]);
 
-  if (passwordList.status === 'loading') {
+  if (passwordList.all.status === 'loading') {
     return (
       <View style={styles.loading}>
         <Image
@@ -214,9 +119,9 @@ const Home = ({navigation}) => {
           Password <Text style={{color: '#1db962'}}>Manager</Text>
         </Text>
 
-        <AntDesign
-          name="plus"
-          size={32}
+        <Ionicons
+          name="add-outline"
+          size={40}
           color={primary}
           onPress={() => navigation.navigate('Add Password')}
         />
@@ -243,7 +148,8 @@ const Home = ({navigation}) => {
 
       {/* search bar */}
       <View style={styles.search_container}>
-        <AntDesign name="search1" size={22} />
+        <Ionicons name="search-outline" size={26} />
+
         <TextInput
           placeholder="Search Password"
           style={{
@@ -276,7 +182,7 @@ const Home = ({navigation}) => {
               ...styles.passwordCategoryIcon,
               borderColor: primary,
             }}>
-            <AntDesign name="chrome" color={primary} size={22} />
+            <Ionicons name="logo-chrome" color={primary} size={27} />
           </View>
           <Text style={{fontSize: 16, color: textPrimary}}>Browser</Text>
           <Text style={{fontSize: 14}}>
@@ -301,7 +207,7 @@ const Home = ({navigation}) => {
 
       {/* list of all passwords */}
       <AllPasswords
-        password={passwordList.password}
+        password={passwords}
         status={status}
         category={category}
         filterCategory={filterCategory}

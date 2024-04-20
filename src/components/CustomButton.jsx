@@ -4,7 +4,13 @@ import {Text, TouchableOpacity} from 'react-native';
 // components
 import {useAppTheme} from '../../App';
 
-const CustomButton = ({title, selected, onPress}) => {
+const CustomButton = ({
+  title,
+  selected = false,
+  onPress,
+  height = 30,
+  fontSize = 15,
+}) => {
   const {
     colors: {primary},
   } = useAppTheme();
@@ -12,12 +18,14 @@ const CustomButton = ({title, selected, onPress}) => {
     <TouchableOpacity
       style={{
         backgroundColor: selected ? '#1db962' : primary,
-        paddingVertical: 3,
         paddingHorizontal: 15,
         borderRadius: 5,
+        height,
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
       onPress={onPress}>
-      <Text style={{fontSize: 15, color: '#fff'}}>{title}</Text>
+      <Text style={{fontSize, color: '#fff'}}>{title}</Text>
     </TouchableOpacity>
   );
 };

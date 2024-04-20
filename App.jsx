@@ -6,6 +6,7 @@ import {MenuProvider} from 'react-native-popup-menu';
 
 // components
 import Stack from './src/navigation/Stack';
+import DataContextProvider from './src/context/DataContext';
 
 const theme = {
   ...DefaultTheme,
@@ -27,11 +28,13 @@ const App = () => {
   return (
     <>
       <StatusBar />
-      <NavigationContainer theme={theme}>
-        <MenuProvider>
-          <Stack />
-        </MenuProvider>
-      </NavigationContainer>
+      <DataContextProvider>
+        <NavigationContainer theme={theme}>
+          <MenuProvider>
+            <Stack />
+          </MenuProvider>
+        </NavigationContainer>
+      </DataContextProvider>
       <Toast />
     </>
   );

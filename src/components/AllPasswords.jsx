@@ -1,8 +1,7 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
   FlatList,
   Image,
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -26,7 +25,7 @@ import {gap} from '../utils/Spacing';
 
 const AllPasswords = ({password, status, category, filterCategory}) => {
   const {
-    colors: {primary, textPrimary},
+    colors: {textPrimary},
   } = useAppTheme();
 
   const copyPassword = password => {
