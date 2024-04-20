@@ -22,6 +22,7 @@ import {
 import {useAppTheme} from '../../App';
 import CustomButton from './CustomButton';
 import {gap} from '../utils/Spacing';
+import Loading from './Loading';
 
 const AllPasswords = ({password, status, category, filterCategory}) => {
   const {
@@ -64,17 +65,9 @@ const AllPasswords = ({password, status, category, filterCategory}) => {
 
       {/* list of passwords */}
       {status === 'loading' ? (
-        <View style={styles.loading}>
-          <Image
-            source={require('../assets/loading.gif')}
-            style={{
-              width: 80,
-              height: 80,
-            }}
-          />
-        </View>
+        <Loading />
       ) : password?.length === 0 ? (
-        <View style={styles.loading}>
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <Text style={{fontSize: 20}}>Not Available</Text>
         </View>
       ) : (
@@ -192,11 +185,5 @@ const styles = StyleSheet.create({
   passwordIconContainer: {
     flexDirection: 'row',
     gap: gap,
-  },
-
-  loading: {
-    flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

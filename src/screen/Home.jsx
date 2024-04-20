@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Image,
   StyleSheet,
@@ -15,6 +15,8 @@ import {useAppTheme} from '../../App';
 import AllPasswords from '../components/AllPasswords';
 import {gap} from '../utils/Spacing';
 import {tempPassword, useDataContext} from '../context/DataContext';
+import Title from '../components/Title';
+import Loading from '../components/Loading';
 
 const Home = ({navigation}) => {
   const {
@@ -99,25 +101,13 @@ const Home = ({navigation}) => {
   }, [passwordList, category]);
 
   if (passwordList.all.status === 'loading') {
-    return (
-      <View style={styles.loading}>
-        <Image
-          source={require('../assets/loading.gif')}
-          style={{
-            width: 80,
-            height: 80,
-          }}
-        />
-      </View>
-    );
+    return <Loading />;
   }
 
   return (
     <View style={styles.homeContainer}>
       <View style={styles.topContainer}>
-        <Text style={{...styles.heading, color: textPrimary}}>
-          Password <Text style={{color: '#1db962'}}>Manager</Text>
-        </Text>
+        <Title style={{fontSize: 23, fontWeight: '500', color: textPrimary}} />
 
         <Ionicons
           name="add-outline"
@@ -228,10 +218,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 15,
   },
-  heading: {
-    fontSize: 23,
-    fontWeight: '500',
-  },
   userContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -276,11 +262,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 5,
-  },
-
-  loading: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

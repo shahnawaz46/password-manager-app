@@ -19,7 +19,7 @@ const CustomButton = ({
       style={{
         backgroundColor: selected ? '#1db962' : primary,
         paddingHorizontal: 15,
-        borderRadius: 5,
+        borderRadius: 10,
         height,
         alignItems: 'center',
         justifyContent: 'center',
