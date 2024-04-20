@@ -11,7 +11,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // components
-import {useAppTheme} from '../../App';
+import {useAppTheme} from '../routes/Router';
 import AllPasswords from '../components/AllPasswords';
 import {gap} from '../utils/Spacing';
 import {tempPassword, useDataContext} from '../context/DataContext';
@@ -24,7 +24,7 @@ const Home = ({navigation}) => {
   } = useAppTheme();
 
   // context where passwords are stored
-  const {passwordList, fetchPassword} = useDataContext();
+  const {data: passwordList, fetchPassword} = useDataContext();
 
   // state for store password that i am getting from passwordList(context)
   const [passwords, setPasswords] = useState([]);

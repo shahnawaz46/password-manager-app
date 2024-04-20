@@ -7,7 +7,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {gap} from '../utils/Spacing';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
-import {useAppTheme} from '../../App';
+import {useAppTheme} from '../routes/Router';
 import Title from '../components/Title';
 
 const Signup = ({navigation}) => {

@@ -2,7 +2,7 @@ import React from 'react';
 import {Text, TouchableOpacity} from 'react-native';
 
 // components
-import {useAppTheme} from '../../App';
+import {useAppTheme} from '../routes/Router';
 
 const CustomButton = ({
   title,

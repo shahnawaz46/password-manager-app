@@ -19,7 +19,7 @@ import {
 } from 'react-native-popup-menu';
 
 // components
-import {useAppTheme} from '../../App';
+import {useAppTheme} from '../routes/Router';
 import CustomButton from './CustomButton';
 import {gap} from '../utils/Spacing';
 import Loading from './Loading';

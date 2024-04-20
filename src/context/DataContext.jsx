@@ -94,25 +94,27 @@ export const tempPassword = [
 ];
 
 const DataContextProvider = ({children}) => {
-  const [passwordList, setPasswordList] = useState({
+  const [data, setData] = useState({
     all: {status: 'loading', data: [], error: null},
     app: {status: 'loading', data: [], error: null},
     browser: {status: 'loading', data: [], error: null},
     count: {all: 20, app: 8, browser: 12},
+    isLoggedIn: false,
+    token: null,
   });
 
   const fetchPassword = async type => {
     try {
       if (type === 'All') {
         setTimeout(() => {
-          setPasswordList(prev => ({
+          setData(prev => ({
             ...prev,
             all: {...prev.all, status: 'success', data: tempPassword},
           }));
         }, 3000);
       } else if (type === 'App') {
         setTimeout(() => {
-          setPasswordList(prev => ({
+          setData(prev => ({
             ...prev,
             app: {
               ...prev.app,
@@ -123,7 +125,7 @@ const DataContextProvider = ({children}) => {
         }, 3000);
       } else if (type === 'Browser') {
         setTimeout(() => {
-          setPasswordList(prev => ({
+          setData(prev => ({
             ...prev,
             browser: {
               ...prev.browser,
@@ -139,7 +141,7 @@ const DataContextProvider = ({children}) => {
   };
 
   return (
-    <DataContext.Provider value={{passwordList, fetchPassword}}>
+    <DataContext.Provider value={{data, fetchPassword}}>
       {children}
     </DataContext.Provider>
   );
