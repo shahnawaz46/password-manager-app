@@ -1,4 +1,5 @@
 import React, {createContext, useContext, useState} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DataContext = createContext();
 
@@ -93,28 +94,35 @@ export const tempPassword = [
   },
 ];
 
+const passwordListInitialState = {
+  all: {status: 'loading', data: [], error: null},
+  app: {status: 'loading', data: [], error: null},
+  browser: {status: 'loading', data: [], error: null},
+  count: {all: 20, app: 8, browser: 12},
+};
+
+const authDetailsInitialState = {
+  isLoggedIn: false,
+  token: '',
+  userDetails: {},
+};
+
 const DataContextProvider = ({children}) => {
-  const [data, setData] = useState({
-    all: {status: 'loading', data: [], error: null},
-    app: {status: 'loading', data: [], error: null},
-    browser: {status: 'loading', data: [], error: null},
-    count: {all: 20, app: 8, browser: 12},
-    isLoggedIn: false,
-    token: null,
-  });
+  const [passwordList, setPasswordList] = useState(passwordListInitialState);
+  const [authDetails, setAuthDetails] = useState(authDetailsInitialState);
 
   const fetchPassword = async type => {
     try {
       if (type === 'All') {
         setTimeout(() => {
-          setData(prev => ({
+          setPasswordList(prev => ({
             ...prev,
             all: {...prev.all, status: 'success', data: tempPassword},
           }));
         }, 3000);
       } else if (type === 'App') {
         setTimeout(() => {
-          setData(prev => ({
+          setPasswordList(prev => ({
             ...prev,
             app: {
               ...prev.app,
@@ -125,7 +133,7 @@ const DataContextProvider = ({children}) => {
         }, 3000);
       } else if (type === 'Browser') {
         setTimeout(() => {
-          setData(prev => ({
+          setPasswordList(prev => ({
             ...prev,
             browser: {
               ...prev.browser,
@@ -140,8 +148,25 @@ const DataContextProvider = ({children}) => {
     }
   };
 
+  const logout = async () => {
+    try {
+      setPasswordList(passwordListInitialState);
+      setAuthDetails(authDetailsInitialState);
+      await AsyncStorage.removeItem('__ut_');
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
-    <DataContext.Provider value={{data, fetchPassword}}>
+    <DataContext.Provider
+      value={{
+        passwordList,
+        authDetails,
+        setAuthDetails,
+        fetchPassword,
+        logout,
+      }}>
       {children}
     </DataContext.Provider>
   );

@@ -24,7 +24,7 @@ const Home = ({navigation}) => {
   } = useAppTheme();
 
   // context where passwords are stored
-  const {data: passwordList, fetchPassword} = useDataContext();
+  const {passwordList, authDetails, fetchPassword} = useDataContext();
 
   // state for store password that i am getting from passwordList(context)
   const [passwords, setPasswords] = useState([]);
@@ -122,7 +122,9 @@ const Home = ({navigation}) => {
         <View style={styles.userContainer}>
           <Image
             source={{
-              uri: 'https://images.unsplash.com/photo-1466112928291-0903b80a9466?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHByb2ZpbGV8ZW58MHx8MHx8fDA%3D',
+              uri:
+                authDetails.userDetails?.image ||
+                'https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_1280.png',
             }}
             style={styles.userImage}
           />
@@ -130,7 +132,7 @@ const Home = ({navigation}) => {
           <View>
             <Text style={{fontSize: 14}}>Welcome Back,</Text>
             <Text style={{color: textPrimary, fontSize: 16}}>
-              Mohammad Shahnawaz Siddiqui
+              {authDetails.userDetails?.fullName}
             </Text>
           </View>
         </View>
@@ -227,6 +229,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 30,
+    objectFit: 'cover',
   },
   search_container: {
     backgroundColor: '#eeeff1',

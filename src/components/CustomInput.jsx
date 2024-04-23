@@ -5,10 +5,13 @@ const CustomInput = ({
   placeholder,
   value,
   icon,
+  endIcon,
   onChangeText,
   backgroundColor,
   type = 'default',
+  secureTextEntry = false,
   width = '100%',
+  maxLength = 20000,
 }) => {
   const conditionalStyle = backgroundColor
     ? {backgroundColor: backgroundColor}
@@ -18,12 +21,15 @@ const CustomInput = ({
       {icon && icon}
       <TextInput
         placeholder={placeholder}
-        style={{fontSize: 16, color: '#000', width: '93%'}}
+        style={{fontSize: 16, color: '#000', width: endIcon ? '83%' : '93%'}}
         placeholderTextColor={'#aaafb5'}
         value={value}
         onChangeText={onChangeText}
         keyboardType={type}
+        maxLength={maxLength}
+        secureTextEntry={secureTextEntry}
       />
+      {endIcon && endIcon}
     </View>
   );
 };
