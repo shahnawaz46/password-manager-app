@@ -7,6 +7,7 @@ const CustomInput = ({
   icon,
   endIcon,
   onChangeText,
+  onBlur,
   backgroundColor,
   type = 'default',
   secureTextEntry = false,
@@ -24,10 +25,11 @@ const CustomInput = ({
         style={{fontSize: 16, color: '#000', width: endIcon ? '83%' : '93%'}}
         placeholderTextColor={'#aaafb5'}
         value={value}
-        onChangeText={onChangeText}
         keyboardType={type}
         maxLength={maxLength}
         secureTextEntry={secureTextEntry}
+        onChangeText={onChangeText}
+        onBlur={onBlur}
       />
       {endIcon && endIcon}
     </View>

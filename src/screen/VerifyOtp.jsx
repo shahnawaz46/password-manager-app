@@ -11,8 +11,9 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import {useAppTheme} from '../routes/Router';
 import {useDataContext} from '../context/DataContext';
+import axiosInstance from '../api/AxiosInstance';
 
-const VerifyOtp = ({navigation}) => {
+const VerifyOtp = ({navigation, route}) => {
   const {
     colors: {primary, textPrimary},
   } = useAppTheme();
@@ -25,20 +26,26 @@ const VerifyOtp = ({navigation}) => {
     if (otp === '' || otp === null) {
       return Toast.show({type: 'error', text1: 'Please enter OTP'});
     }
-
     try {
-      // const res = await
-      const token = '123456789';
-      await AsyncStorage.setItem('__ut_', token);
+      const res = await axiosInstance.post('/user/otp-verify', {
+        otp,
+        email: route?.params?.email,
+      });
+      await AsyncStorage.setItem('__ut_', res.data._id);
       setAuthDetails(prev => ({
         ...prev,
         isLoggedIn: true,
-        token: token,
+        token: res.data._id,
+        userDetails: {
+          fullName: res.data?.fullName,
+          email: res.data?.email,
+          image: res.data?.profile,
+        },
       }));
     } catch (err) {
       Toast.show({
         type: 'error',
-        text1: err.message,
+        text1: err?.response?.data?.error || err.message,
       });
     }
   };

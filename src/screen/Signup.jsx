@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Text, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
@@ -12,6 +12,9 @@ import {useAppTheme} from '../routes/Router';
 import Title from '../components/Title';
 import {useDataContext} from '../context/DataContext';
 import {formValidation} from '../utils/Validation';
+import axiosInstance from '../api/AxiosInstance';
+import {Formik} from 'formik';
+import {singupSchema} from '../validation/YupValidationSchema';
 
 const Signup = ({navigation}) => {
   const {
@@ -21,34 +24,21 @@ const Signup = ({navigation}) => {
   const {setAuthDetails} = useDataContext();
 
   const [userDetails, setUserDetails] = useState({
-    full_name: '',
+    fullName: '',
     email: '',
     password: '',
-    confirm_password: '',
+    confirmPassword: '',
   });
   const [secureField, setSecureField] = useState(true);
 
-  const handleSignup = async () => {
-    const result = formValidation(userDetails);
-    if (!result.status) {
-      return Toast.show({type: 'error', text1: result.msg});
-    }
-
+  const handleSignup = async value => {
     try {
-      // const res = await
-      setAuthDetails(prev => ({
-        ...prev,
-        userDetails: {
-          fullName: 'Mohammad Shahnawaz',
-          email: 'shahanwaz@gamil.com',
-          image: '',
-        },
-      }));
-      navigation.navigate('Verify OTP');
+      await axiosInstance.post('/user/register', value);
+      navigation.navigate('Verify OTP', {email: value.email});
     } catch (err) {
       Toast.show({
         type: 'error',
-        text1: err.message,
+        text1: err?.response?.data?.error || err.message,
       });
     }
   };
@@ -65,73 +55,100 @@ const Signup = ({navigation}) => {
         }}
       />
 
-      <View style={{flex: 1, justifyContent: 'center', padding: gap}}>
-        <Text
-          style={{
-            fontSize: 25,
-            fontWeight: '500',
-            color: '#333',
-            marginVertical: 15,
-          }}>
-          Registration
-        </Text>
+      <View style={styles.formContainer}>
+        <Text style={styles.formHeading}>Registration</Text>
 
-        <View style={{gap: gap}}>
-          <CustomInput
-            placeholder={'Full Name'}
-            backgroundColor={'#edeef1'}
-            icon={<Ionicons name="person" size={22} color="#000" />}
-            onChangeText={e =>
-              setUserDetails(prev => ({...prev, full_name: e}))
-            }
-          />
-          <CustomInput
-            placeholder={'Email'}
-            backgroundColor={'#edeef1'}
-            icon={<Ionicons name="mail" size={22} color="#000" />}
-            onChangeText={e => setUserDetails(prev => ({...prev, email: e}))}
-          />
-          <CustomInput
-            placeholder={'Password'}
-            backgroundColor={'#edeef1'}
-            icon={<Ionicons name="lock-closed" size={22} color="#000" />}
-            endIcon={
-              <Ionicons
-                name={secureField ? 'eye-off' : 'eye'}
-                size={22}
-                color="#000"
-                onPress={() => setSecureField(prev => !prev)}
+        <Formik
+          initialValues={{
+            fullName: '',
+            email: '',
+            password: '',
+            confirmPassword: '',
+          }}
+          validationSchema={singupSchema}
+          onSubmit={value => handleSignup(value)}>
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleSubmit,
+            isSubmitting,
+          }) => (
+            <View style={{gap: gap}}>
+              <View>
+                <CustomInput
+                  placeholder={'Full Name'}
+                  backgroundColor={'#edeef1'}
+                  icon={<Ionicons name="person" size={22} color="#000" />}
+                  value={values.fullName}
+                  onChangeText={handleChange('fullName')}
+                />
+                {touched.fullName && errors.fullName && (
+                  <Text style={styles.error}>{errors.fullName}</Text>
+                )}
+              </View>
+              <View>
+                <CustomInput
+                  placeholder={'Email'}
+                  backgroundColor={'#edeef1'}
+                  icon={<Ionicons name="mail" size={22} color="#000" />}
+                  value={values.email}
+                  onChangeText={handleChange('email')}
+                />
+                {touched.email && errors.email && (
+                  <Text style={styles.error}>{errors.email}</Text>
+                )}
+              </View>
+
+              <View>
+                <CustomInput
+                  placeholder={'Password'}
+                  backgroundColor={'#edeef1'}
+                  icon={<Ionicons name="lock-closed" size={22} color="#000" />}
+                  endIcon={
+                    <Ionicons
+                      name={secureField ? 'eye-off' : 'eye'}
+                      size={22}
+                      color="#000"
+                      onPress={() => setSecureField(prev => !prev)}
+                    />
+                  }
+                  value={values.password}
+                  onChangeText={handleChange('password')}
+                  secureTextEntry={secureField}
+                />
+                {touched.password && errors.password && (
+                  <Text style={styles.error}>{errors.password}</Text>
+                )}
+              </View>
+
+              <View>
+                <CustomInput
+                  placeholder={'Confirm Password'}
+                  backgroundColor={'#edeef1'}
+                  icon={<Ionicons name="lock-closed" size={22} color="#000" />}
+                  value={values.confirmPassword}
+                  onChangeText={handleChange('confirmPassword')}
+                  secureTextEntry={true}
+                />
+                {touched.confirmPassword && errors.confirmPassword && (
+                  <Text style={styles.error}>{errors.confirmPassword}</Text>
+                )}
+              </View>
+              <CustomButton
+                title={'Signup'}
+                height={45}
+                fontSize={21}
+                onPress={handleSubmit}
               />
-            }
-            onChangeText={e => setUserDetails(prev => ({...prev, password: e}))}
-            secureTextEntry={secureField}
-          />
-          <CustomInput
-            placeholder={'Confirm Password'}
-            backgroundColor={'#edeef1'}
-            icon={<Ionicons name="lock-closed" size={22} color="#000" />}
-            onChangeText={e =>
-              setUserDetails(prev => ({...prev, confirm_password: e}))
-            }
-            secureTextEntry={true}
-          />
-          <CustomButton
-            title={'Signup'}
-            height={45}
-            fontSize={21}
-            onPress={handleSignup}
-          />
-        </View>
+            </View>
+          )}
+        </Formik>
       </View>
 
       {/* bottom part for redirect to signin */}
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'center',
-          marginBottom: 20,
-          marginTop: 10,
-        }}>
+      <View style={styles.alreadyAccount}>
         <Text style={{fontSize: 15}}>Already have an account?</Text>
         <TouchableOpacity onPress={() => navigation.navigate('Signin')}>
           <Text
@@ -150,3 +167,23 @@ const Signup = ({navigation}) => {
 };
 
 export default Signup;
+
+const styles = StyleSheet.create({
+  formContainer: {flex: 1, justifyContent: 'center', padding: gap},
+  formHeading: {
+    fontSize: 25,
+    fontWeight: '500',
+    color: '#333',
+    marginVertical: 15,
+  },
+  alreadyAccount: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  error: {
+    color: 'red',
+    marginTop: 0.5,
+  },
+});

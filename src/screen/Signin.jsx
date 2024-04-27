@@ -13,6 +13,7 @@ import {useAppTheme} from '../routes/Router';
 import Title from '../components/Title';
 import {formValidation} from '../utils/Validation';
 import {useDataContext} from '../context/DataContext';
+import axiosInstance from '../api/AxiosInstance';
 
 const Signin = ({navigation}) => {
   const {
@@ -24,13 +25,14 @@ const Signin = ({navigation}) => {
   const [userDetails, setUserDetails] = useState({email: '', password: ''});
 
   const handleSignin = async () => {
-    const result = formValidation(userDetails);
-    if (!result.status) {
-      return Toast.show({type: 'error', text1: result.msg});
-    }
+    // const result = formValidation(userDetails);
+    // if (!result.status) {
+    //   return Toast.show({type: 'error', text1: result.msg});
+    // }
 
     try {
-      // const res = await
+      const res = await axiosInstance.post('/user/login', userDetails);
+      return console.log(res);
       const token = '123456789';
       await AsyncStorage.setItem('__ut_', token);
       setAuthDetails({
@@ -45,7 +47,7 @@ const Signin = ({navigation}) => {
     } catch (err) {
       Toast.show({
         type: 'error',
-        text1: err.message,
+        text1: err?.response?.data?.error || err.message,
       });
     }
   };
@@ -88,6 +90,7 @@ const Signin = ({navigation}) => {
             icon={<Ionicons name="lock-closed" size={22} color="#000" />}
             value={userDetails.password}
             onChangeText={e => setUserDetails(prev => ({...prev, password: e}))}
+            secureTextEntry={true}
           />
 
           {/* <TouchableOpacity>
