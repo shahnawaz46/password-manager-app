@@ -23,11 +23,17 @@ import {useAppTheme} from '../routes/Router';
 import CustomButton from './CustomButton';
 import {gap} from '../utils/Spacing';
 import Loading from './Loading';
+import axiosInstance from '../api/AxiosInstance';
+import {useDataContext} from '../context/DataContext';
+import {all} from 'axios';
 
 const AllPasswords = ({password, status, category, filterCategory}) => {
   const {
     colors: {textPrimary},
   } = useAppTheme();
+  console.log('AllPasswords:', password.length);
+
+  const {setPasswordList} = useDataContext();
 
   const copyPassword = password => {
     Clipboard.setString(password);
@@ -39,8 +45,33 @@ const AllPasswords = ({password, status, category, filterCategory}) => {
     });
   };
 
-  const onDelete = id => {
-    console.log(id);
+  const onDelete = async (id, categoryType) => {
+    try {
+      const res = await axiosInstance.delete('/password', {data: {id}});
+      console.log(res.data);
+
+      // after deleted from the database i am also removing from state
+      const category = categoryType.toLowerCase();
+      setPasswordList(prev => ({
+        ...prev,
+        all: {...prev.all, data: prev.all.data.filter(item => item._id !== id)},
+        [category]: {
+          ...prev[category],
+          data: prev[category].data.filter(item => item._id !== id),
+        },
+        count: {
+          ...prev.count,
+          all: (prev.count.all -= 1),
+          [category]: (prev.count[category] -= 1),
+        },
+      }));
+      Toast.show({type: 'success', text1: res.data.msg});
+    } catch (err) {
+      Toast.show({
+        type: 'error',
+        text1: err?.response?.data?.error || err?.message,
+      });
+    }
   };
 
   return (
@@ -76,7 +107,7 @@ const AllPasswords = ({password, status, category, filterCategory}) => {
           <FlatList
             data={password}
             contentContainerStyle={styles.passwordCardContainer}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item._id}
             renderItem={({item}) => (
               <View style={styles.passwordCard}>
                 <View style={{flex: 1}}>
@@ -126,7 +157,7 @@ const AllPasswords = ({password, status, category, filterCategory}) => {
                         </View>
                       </MenuOption>
                       <MenuOption
-                        onSelect={() => onDelete(item.id)}
+                        onSelect={() => onDelete(item._id, item.category)}
                         style={{padding: 10}}>
                         <View
                           style={{

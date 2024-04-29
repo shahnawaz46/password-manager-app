@@ -29,3 +29,10 @@ export const singinSchema = Yup.object({
       'Password must contain at least one lowercase letter, one uppercase letter, and one number',
     ),
 });
+
+export const vaultSchema = Yup.object({
+  name: Yup.string().required('Website/App Name is required'),
+  userName: Yup.string().required('Email/UserName is required'),
+  password: Yup.string().required('Password is Required'),
+  category: Yup.string().required('Category is required'),
+});

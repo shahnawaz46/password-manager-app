@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {SafeAreaView, ScrollView, StyleSheet, Text, View} from 'react-native';
 import Toast from 'react-native-toast-message';
+import {Formik} from 'formik';
 
 // for use nanoid in react native we have to install react-native-get-random-values
 import 'react-native-get-random-values';
@@ -11,93 +12,132 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import {gap} from '../utils/Spacing';
 import DropDown from '../components/DropDown';
+import {vaultSchema} from '../validation/YupValidationSchema';
+import axiosInstance from '../api/AxiosInstance';
+import {useDataContext} from '../context/DataContext';
 
 const AddPassword = () => {
-  const [passwordDetails, setPasswordDetails] = useState({
-    name: '',
-    userName: '',
-    password: '',
-    tag: '',
-  });
+  const {setPasswordList} = useDataContext();
 
-  // generating password with the help of nanoid
-  const generatePassword = () => {
-    const randomPassword = nanoid();
-    setPasswordDetails(prev => ({...prev, password: randomPassword}));
-  };
-
-  const handlePassword = () => {
-    if (
-      passwordDetails.name === '' ||
-      passwordDetails.userName ||
-      passwordDetails.password ||
-      passwordDetails.tag
-    )
-      return Toast.show({
+  const handlePassword = async values => {
+    try {
+      const res = await axiosInstance.post('/password', values);
+      const category = res.data.category.toLowerCase();
+      // after password added to the databse then updating the state
+      setPasswordList(prev => ({
+        ...prev,
+        all: {...prev.all, data: [res.data, ...prev.all.data]},
+        [category]: {
+          ...prev[category],
+          data: [res.data, ...prev[category].data],
+        },
+        count: {
+          ...prev.count,
+          all: (prev.count.all += 1),
+          [category]: (prev.count[category] += 1),
+        },
+      }));
+      Toast.show({type: 'success', text1: 'Successfully Added'});
+    } catch (err) {
+      Toast.show({
         type: 'error',
-        text1: 'Please Fill All The Fields',
-        topOffset: 25,
+        text1: err?.response?.data?.error || err?.message,
       });
-    console.log(passwordDetails);
+    }
   };
 
   return (
-    <ScrollView contentContainerStyle={{flexGrow: 1}}>
+    <ScrollView
+      contentContainerStyle={{flexGrow: 1}}
+      keyboardShouldPersistTaps={'always'}>
       <SafeAreaView style={{flex: 1}}>
         <View style={styles.formContainer}>
           <Text style={styles.formHeading}>Add New Password</Text>
-          <View style={styles.form}>
-            <CustomInput
-              value={passwordDetails.name}
-              placeholder={'Enter Website/App Name'}
-              onChangeText={txt =>
-                setPasswordDetails(prev => ({...prev, name: txt}))
-              }
-            />
 
-            <CustomInput
-              value={passwordDetails.userName}
-              placeholder={'Enter Email/UserName'}
-              onChangeText={txt =>
-                setPasswordDetails(prev => ({...prev, userName: txt}))
-              }
-            />
+          <Formik
+            initialValues={{name: '', userName: '', password: '', category: ''}}
+            validationSchema={vaultSchema}
+            onSubmit={(values, {resetForm}) => {
+              handlePassword(values);
+              resetForm({name: '', userName: '', password: '', category: ''});
+            }}>
+            {({
+              values,
+              errors,
+              touched,
+              handleChange,
+              setFieldValue,
+              handleSubmit,
+            }) => (
+              <View style={styles.form}>
+                <View>
+                  <CustomInput
+                    value={values.name}
+                    placeholder={'Enter Website/App Name'}
+                    onChangeText={handleChange('name')}
+                  />
+                  {touched.name && errors.name && (
+                    <Text style={styles.error}>{errors.name}</Text>
+                  )}
+                </View>
 
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
-              <CustomInput
-                value={passwordDetails.password}
-                placeholder={'Enter/Generate Password'}
-                onChangeText={txt =>
-                  setPasswordDetails(prev => ({...prev, password: txt}))
-                }
-                width="70%"
-              />
-              <CustomButton
-                title={'Generate'}
-                height={44}
-                fontSize={16}
-                onPress={generatePassword}
-              />
-            </View>
-            <DropDown
-              value={''}
-              onChangeText={tag =>
-                setPasswordDetails(prev => ({...prev, tag: tag.name}))
-              }
-            />
+                <View>
+                  <CustomInput
+                    placeholder={'Enter Email/UserName'}
+                    value={values.userName}
+                    onChangeText={handleChange('userName')}
+                  />
+                  {touched.userName && errors.userName && (
+                    <Text style={styles.error}>{errors.userName}</Text>
+                  )}
+                </View>
 
-            <CustomButton
-              title={'ADD'}
-              height={45}
-              fontSize={18}
-              onPress={handlePassword}
-            />
-          </View>
+                <View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}>
+                    <CustomInput
+                      value={values.password}
+                      placeholder={'Enter/Generate Password'}
+                      onChangeText={handleChange('password')}
+                      width="70%"
+                    />
+
+                    <CustomButton
+                      title={'Generate'}
+                      height={44}
+                      fontSize={16}
+                      onPress={() => setFieldValue('password', nanoid())}
+                    />
+                  </View>
+
+                  {touched.password && errors.password && (
+                    <Text style={styles.error}>{errors.password}</Text>
+                  )}
+                </View>
+
+                <View>
+                  <DropDown
+                    value={values.category}
+                    onChangeText={item => setFieldValue('category', item?.name)}
+                  />
+                  {touched.category && errors.category && (
+                    <Text style={styles.error}>{errors.category}</Text>
+                  )}
+                </View>
+
+                <CustomButton
+                  title={'ADD'}
+                  height={45}
+                  fontSize={18}
+                  onPress={handleSubmit}
+                />
+              </View>
+            )}
+          </Formik>
         </View>
       </SafeAreaView>
     </ScrollView>
@@ -123,5 +163,9 @@ const styles = StyleSheet.create({
   form: {
     gap: 15,
     width: '100%',
+  },
+  error: {
+    color: 'red',
+    marginTop: 0.5,
   },
 });

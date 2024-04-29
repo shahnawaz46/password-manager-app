@@ -5,97 +5,6 @@ import Toast from 'react-native-toast-message';
 
 const DataContext = createContext();
 
-export const tempPassword = [
-  {
-    id: 1,
-    name: 'GitHub',
-    userName:
-      'shahnawaz123@gmail.comshahnawaz123@gmail.comshahnawaz123@gmail.com',
-    password: 'GitHub123456',
-    category: 'Browser',
-  },
-  {
-    id: 2,
-    name: 'Figmashahnawaz123456789000000000',
-    userName: 'shahnawaz123@gmail.com',
-    password: 'Figma123456',
-    category: 'Browser',
-  },
-  {
-    id: 3,
-    name: 'Linkedin',
-    userName: 'shahnawaz123@gmail.com',
-    password: 'Linkedin123456',
-    category: 'App',
-  },
-  {
-    id: 4,
-    name: 'GitHub',
-    userName:
-      'shahnawaz123@gmail.comshahnawaz123@gmail.comshahnawaz123@gmail.com',
-    password: '123456',
-    category: 'Browser',
-  },
-  {
-    id: 5,
-    name: 'Figmashahnawaz123456789000000000',
-    userName: 'shahnawaz123@gmail.com',
-    password: '123456',
-    category: 'Browser',
-  },
-  {
-    id: 6,
-    name: 'Linkedin',
-    userName: 'shahnawaz123@gmail.com',
-    password: '123456',
-    category: 'App',
-  },
-  {
-    id: 7,
-    name: 'GitHub',
-    userName:
-      'shahnawaz123@gmail.comshahnawaz123@gmail.comshahnawaz123@gmail.com',
-    password: '123456',
-    category: 'Browser',
-  },
-  {
-    id: 8,
-    name: 'Figmashahnawaz123456789000000000',
-    userName: 'shahnawaz123@gmail.com',
-    password: '123456',
-    category: 'Browser',
-  },
-  {
-    id: 9,
-    name: 'Linkedin',
-    userName: 'shahnawaz123@gmail.com',
-    password: '123456',
-    category: 'App',
-  },
-  {
-    id: 10,
-    name: 'GitHub',
-    userName:
-      'shahnawaz123@gmail.comshahnawaz123@gmail.comshahnawaz123@gmail.com',
-    password: '123456',
-    category: 'Browser',
-  },
-  {
-    id: 11,
-    name: 'Figmashahnawaz123456789000000000',
-    userName: 'shahnawaz123@gmail.com',
-    password: '123456',
-    category: 'Browser',
-  },
-  {
-    id: 12,
-    name: 'Linkedin',
-    userName: 'shahnawaz123@gmail.com',
-    password: '123456',
-    category: 'App',
-  },
-];
-
 const passwordListInitialState = {
   all: {status: 'loading', data: [], error: null},
   app: {status: 'loading', data: [], error: null},
@@ -130,7 +39,6 @@ const DataContextProvider = ({children}) => {
         }));
       } else if (type === 'Browser') {
         const res = await axiosInstance.get('/password?category=Browser');
-        console.log(res.data);
         setPasswordList(prev => ({
           ...prev,
           browser: {
@@ -167,6 +75,7 @@ const DataContextProvider = ({children}) => {
     <DataContext.Provider
       value={{
         passwordList,
+        setPasswordList,
         authDetails,
         setAuthDetails,
         fetchPassword,
