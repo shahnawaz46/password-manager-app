@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {SafeAreaView, ScrollView, StyleSheet, Text, View} from 'react-native';
 import Toast from 'react-native-toast-message';
 
 // for use nanoid in react native we have to install react-native-get-random-values
@@ -33,66 +33,74 @@ const AddPassword = () => {
       passwordDetails.password ||
       passwordDetails.tag
     )
-      return Toast.show({type: 'error', text1: 'Please Fill All The Fields'});
+      return Toast.show({
+        type: 'error',
+        text1: 'Please Fill All The Fields',
+        topOffset: 25,
+      });
     console.log(passwordDetails);
   };
 
   return (
-    <View style={styles.formContainer}>
-      <Text style={styles.formHeading}>Add New Password</Text>
-      <View style={styles.form}>
-        <CustomInput
-          value={passwordDetails.name}
-          placeholder={'Enter Website/App Name'}
-          onChangeText={txt =>
-            setPasswordDetails(prev => ({...prev, name: txt}))
-          }
-        />
+    <ScrollView contentContainerStyle={{flexGrow: 1}}>
+      <SafeAreaView style={{flex: 1}}>
+        <View style={styles.formContainer}>
+          <Text style={styles.formHeading}>Add New Password</Text>
+          <View style={styles.form}>
+            <CustomInput
+              value={passwordDetails.name}
+              placeholder={'Enter Website/App Name'}
+              onChangeText={txt =>
+                setPasswordDetails(prev => ({...prev, name: txt}))
+              }
+            />
 
-        <CustomInput
-          value={passwordDetails.userName}
-          placeholder={'Enter Email/UserName'}
-          onChangeText={txt =>
-            setPasswordDetails(prev => ({...prev, userName: txt}))
-          }
-        />
+            <CustomInput
+              value={passwordDetails.userName}
+              placeholder={'Enter Email/UserName'}
+              onChangeText={txt =>
+                setPasswordDetails(prev => ({...prev, userName: txt}))
+              }
+            />
 
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-          <CustomInput
-            value={passwordDetails.password}
-            placeholder={'Enter/Generate Password'}
-            onChangeText={txt =>
-              setPasswordDetails(prev => ({...prev, password: txt}))
-            }
-            width="70%"
-          />
-          <CustomButton
-            title={'Generate'}
-            height={44}
-            fontSize={16}
-            onPress={generatePassword}
-          />
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+              <CustomInput
+                value={passwordDetails.password}
+                placeholder={'Enter/Generate Password'}
+                onChangeText={txt =>
+                  setPasswordDetails(prev => ({...prev, password: txt}))
+                }
+                width="70%"
+              />
+              <CustomButton
+                title={'Generate'}
+                height={44}
+                fontSize={16}
+                onPress={generatePassword}
+              />
+            </View>
+            <DropDown
+              value={''}
+              onChangeText={tag =>
+                setPasswordDetails(prev => ({...prev, tag: tag.name}))
+              }
+            />
+
+            <CustomButton
+              title={'ADD'}
+              height={45}
+              fontSize={18}
+              onPress={handlePassword}
+            />
+          </View>
         </View>
-        <DropDown
-          value={''}
-          onChangeText={tag =>
-            setPasswordDetails(prev => ({...prev, tag: tag.name}))
-          }
-        />
-
-        <CustomButton
-          title={'ADD'}
-          height={45}
-          fontSize={18}
-          onPress={handlePassword}
-        />
-      </View>
-    </View>
+      </SafeAreaView>
+    </ScrollView>
   );
 };
 

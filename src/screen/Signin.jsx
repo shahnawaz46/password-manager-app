@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Text, TouchableOpacity, View} from 'react-native';
+import {ScrollView, Text, TouchableOpacity, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
@@ -25,14 +25,14 @@ const Signin = ({navigation}) => {
   const [userDetails, setUserDetails] = useState({email: '', password: ''});
 
   const handleSignin = async () => {
-    // const result = formValidation(userDetails);
-    // if (!result.status) {
-    //   return Toast.show({type: 'error', text1: result.msg});
-    // }
+    const result = formValidation(userDetails);
+    if (!result.status) {
+      return Toast.show({type: 'error', text1: result.msg, topOffset: 25});
+    }
 
     try {
-      const res = await axiosInstance.post('/user/login', userDetails);
-      return console.log(res);
+      // const res = await axiosInstance.post('/user/login', userDetails);
+      // return console.log(res);
       const token = '123456789';
       await AsyncStorage.setItem('__ut_', token);
       setAuthDetails({
@@ -48,86 +48,91 @@ const Signin = ({navigation}) => {
       Toast.show({
         type: 'error',
         text1: err?.response?.data?.error || err.message,
+        topOffset: 25,
       });
     }
   };
 
   return (
-    <SafeAreaView style={{flex: 1}}>
-      <Title
-        style={{
-          fontSize: 28,
-          fontWeight: '500',
-          color: textPrimary,
-          textAlign: 'center',
-          marginTop: 30,
-        }}
-      />
-
-      <View style={{flex: 1, justifyContent: 'center', padding: gap}}>
-        <Text
+    <ScrollView contentContainerStyle={{flexGrow: 1}}>
+      <SafeAreaView style={{flex: 1}}>
+        <Title
           style={{
-            fontSize: 25,
+            fontSize: 28,
             fontWeight: '500',
-            color: '#333',
-            marginVertical: 15,
-          }}>
-          Welcome!
-        </Text>
+            color: textPrimary,
+            textAlign: 'center',
+            marginTop: 30,
+          }}
+        />
 
-        {/* form part */}
-        <View style={{gap: gap}}>
-          <CustomInput
-            placeholder={'Email'}
-            backgroundColor={'#edeef1'}
-            icon={<Ionicons name="mail" size={22} color="#000" />}
-            value={userDetails.email}
-            onChangeText={e => setUserDetails(prev => ({...prev, email: e}))}
-          />
-          <CustomInput
-            placeholder={'Password'}
-            backgroundColor={'#edeef1'}
-            icon={<Ionicons name="lock-closed" size={22} color="#000" />}
-            value={userDetails.password}
-            onChangeText={e => setUserDetails(prev => ({...prev, password: e}))}
-            secureTextEntry={true}
-          />
+        <View style={{flex: 1, justifyContent: 'center', padding: gap}}>
+          <Text
+            style={{
+              fontSize: 25,
+              fontWeight: '500',
+              color: '#333',
+              marginVertical: 15,
+            }}>
+            Welcome!
+          </Text>
 
-          {/* <TouchableOpacity>
+          {/* form part */}
+          <View style={{gap: gap}}>
+            <CustomInput
+              placeholder={'Email'}
+              backgroundColor={'#edeef1'}
+              icon={<Ionicons name="mail" size={22} color="#000" />}
+              value={userDetails.email}
+              onChangeText={e => setUserDetails(prev => ({...prev, email: e}))}
+            />
+            <CustomInput
+              placeholder={'Password'}
+              backgroundColor={'#edeef1'}
+              icon={<Ionicons name="lock-closed" size={22} color="#000" />}
+              value={userDetails.password}
+              onChangeText={e =>
+                setUserDetails(prev => ({...prev, password: e}))
+              }
+              secureTextEntry={true}
+            />
+
+            {/* <TouchableOpacity>
             <Text>Forgot Password?</Text>
           </TouchableOpacity> */}
 
-          <CustomButton
-            title={'Login'}
-            height={45}
-            fontSize={21}
-            onPress={handleSignin}
-          />
+            <CustomButton
+              title={'Login'}
+              height={45}
+              fontSize={21}
+              onPress={handleSignin}
+            />
+          </View>
         </View>
-      </View>
 
-      {/* bottom part for redirect to signin */}
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'center',
-          marginBottom: 20,
-          marginTop: 10,
-        }}>
-        <Text style={{fontSize: 15}}>Don't have an account?</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-          <Text
-            style={{
-              color: primary,
-              fontWeight: '700',
-              marginLeft: 5,
-              fontSize: 15,
-            }}>
-            Register
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+        {/* bottom part for redirect to signin */}
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            marginBottom: 20,
+            marginTop: 10,
+          }}>
+          <Text style={{fontSize: 15}}>Don't have an account?</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+            <Text
+              style={{
+                color: primary,
+                fontWeight: '700',
+                marginLeft: 5,
+                fontSize: 15,
+              }}>
+              Register
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </ScrollView>
   );
 };
 

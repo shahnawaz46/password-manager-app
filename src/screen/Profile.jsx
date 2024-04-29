@@ -33,6 +33,7 @@ const Profile = ({navigation}) => {
         return Toast.show({
           type: 'error',
           text1: 'Please grant camera permission',
+          topOffset: 25,
         });
       }
       console.log(err.message);

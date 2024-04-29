@@ -24,7 +24,11 @@ const VerifyOtp = ({navigation, route}) => {
 
   const handleVerifyOTP = async () => {
     if (otp === '' || otp === null) {
-      return Toast.show({type: 'error', text1: 'Please enter OTP'});
+      return Toast.show({
+        type: 'error',
+        text1: 'Please enter OTP',
+        topOffset: 25,
+      });
     }
     try {
       const res = await axiosInstance.post('/user/otp-verify', {
@@ -46,6 +50,7 @@ const VerifyOtp = ({navigation, route}) => {
       Toast.show({
         type: 'error',
         text1: err?.response?.data?.error || err.message,
+        topOffset: 25,
       });
     }
   };

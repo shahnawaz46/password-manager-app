@@ -35,6 +35,7 @@ const AllPasswords = ({password, status, category, filterCategory}) => {
       text1: 'Text Copied!',
       type: 'success', // Or 'info' for a neutral message
       position: 'bottom',
+      bottomOffset: 25,
     });
   };
 
