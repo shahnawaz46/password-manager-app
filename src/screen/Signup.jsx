@@ -42,7 +42,9 @@ const Signup = ({navigation}) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={{flexGrow: 1}}>
+    <ScrollView
+      contentContainerStyle={{flexGrow: 1}}
+      keyboardShouldPersistTaps={'always'}>
       <SafeAreaView style={{flex: 1}}>
         <Title
           style={{

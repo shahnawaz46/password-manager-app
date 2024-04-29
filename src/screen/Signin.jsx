@@ -9,8 +9,8 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Formik} from 'formik';
+import * as Keychain from 'react-native-keychain';
 
 // components
 import {gap} from '../utils/Spacing';
@@ -32,11 +32,15 @@ const Signin = ({navigation}) => {
   const handleSignin = async value => {
     try {
       const res = await axiosInstance.post('/user/login', value);
-      await AsyncStorage.setItem('__ut_', res.data?._id);
+
+      // using Keychain instead of asyncLocalStorage because Keychain is secure
+      // and Keychain store username and password so here username will be Token and password will be value of token
+      const token = res.data?.token;
+      await Keychain.setGenericPassword('Token', token);
       setAuthDetails(prev => ({
         ...prev,
         isLoggedIn: true,
-        token: res.data?._id,
+        token: token,
         userDetails: {
           fullName: res.data?.fullName,
           email: res.data?.email,
@@ -53,7 +57,9 @@ const Signin = ({navigation}) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={{flexGrow: 1}}>
+    <ScrollView
+      contentContainerStyle={{flexGrow: 1}}
+      keyboardShouldPersistTaps={'always'}>
       <SafeAreaView style={{flex: 1}}>
         <Title
           style={{

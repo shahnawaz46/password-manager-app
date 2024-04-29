@@ -1,13 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
 import {MenuProvider} from 'react-native-popup-menu';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Keychain from 'react-native-keychain';
 
 // components
 import {useDataContext} from '../context/DataContext';
 import AppStack from './AppStack';
 import AuthStack from './AuthStack';
 import Loading from '../components/Loading';
+import axiosInstance from '../api/AxiosInstance';
 
 const theme = {
   ...DefaultTheme,
@@ -35,22 +36,21 @@ const Router = () => {
 
   const getUserDetails = async () => {
     try {
-      const isToken = await AsyncStorage.getItem('__ut_');
-      console.log(isToken);
-      if (isToken) {
-        // const res = await
+      const isToken = await Keychain.getGenericPassword();
+      if (isToken?.password) {
+        const res = await axiosInstance.get('/user/profile');
         setAuthDetails({
           isLoggedIn: true,
           token: isToken,
           userDetails: {
-            fullName: 'Mohammad Shahnawaz',
-            email: 'shahanwaz@gamil.com',
-            image: '',
+            fullName: res.data?.fullName,
+            email: res.data?.email,
+            image: res.data?.profile,
           },
         });
       }
     } catch (err) {
-      console.log(err);
+      console.log(err?.response?.data?.error || err?.message);
     }
 
     setLoading(false);

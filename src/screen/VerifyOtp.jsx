@@ -4,6 +4,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import * as Keychain from 'react-native-keychain';
 
 // components
 import {gap} from '../utils/Spacing';
@@ -35,11 +36,13 @@ const VerifyOtp = ({navigation, route}) => {
         otp,
         email: route?.params?.email,
       });
-      await AsyncStorage.setItem('__ut_', res.data._id);
+
+      const token = res.data?.token;
+      await Keychain.setGenericPassword('Token', token);
       setAuthDetails(prev => ({
         ...prev,
         isLoggedIn: true,
-        token: res.data._id,
+        token: token,
         userDetails: {
           fullName: res.data?.fullName,
           email: res.data?.email,
