@@ -1,9 +1,16 @@
-import React, {useState} from 'react';
-import {ScrollView, Text, TouchableOpacity, View} from 'react-native';
+import React from 'react';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Formik} from 'formik';
 
 // components
 import {gap} from '../utils/Spacing';
@@ -11,9 +18,9 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import {useAppTheme} from '../routes/Router';
 import Title from '../components/Title';
-import {formValidation} from '../utils/Validation';
 import {useDataContext} from '../context/DataContext';
 import axiosInstance from '../api/AxiosInstance';
+import {singinSchema} from '../validation/YupValidationSchema';
 
 const Signin = ({navigation}) => {
   const {
@@ -22,28 +29,20 @@ const Signin = ({navigation}) => {
 
   const {setAuthDetails} = useDataContext();
 
-  const [userDetails, setUserDetails] = useState({email: '', password: ''});
-
-  const handleSignin = async () => {
-    const result = formValidation(userDetails);
-    if (!result.status) {
-      return Toast.show({type: 'error', text1: result.msg, topOffset: 25});
-    }
-
+  const handleSignin = async value => {
     try {
-      // const res = await axiosInstance.post('/user/login', userDetails);
-      // return console.log(res);
-      const token = '123456789';
-      await AsyncStorage.setItem('__ut_', token);
-      setAuthDetails({
+      const res = await axiosInstance.post('/user/login', value);
+      await AsyncStorage.setItem('__ut_', res.data?._id);
+      setAuthDetails(prev => ({
+        ...prev,
         isLoggedIn: true,
-        token: token,
+        token: res.data?._id,
         userDetails: {
-          fullName: 'Mohammad Shahnawaz',
-          email: 'shahanwaz@gamil.com',
-          image: '',
+          fullName: res.data?.fullName,
+          email: res.data?.email,
+          image: res.data?.profile,
         },
-      });
+      }));
     } catch (err) {
       Toast.show({
         type: 'error',
@@ -66,58 +65,62 @@ const Signin = ({navigation}) => {
           }}
         />
 
-        <View style={{flex: 1, justifyContent: 'center', padding: gap}}>
-          <Text
-            style={{
-              fontSize: 25,
-              fontWeight: '500',
-              color: '#333',
-              marginVertical: 15,
-            }}>
-            Welcome!
-          </Text>
+        <View style={styles.formContainer}>
+          <Text style={styles.formHeading}>Welcome!</Text>
 
           {/* form part */}
-          <View style={{gap: gap}}>
-            <CustomInput
-              placeholder={'Email'}
-              backgroundColor={'#edeef1'}
-              icon={<Ionicons name="mail" size={22} color="#000" />}
-              value={userDetails.email}
-              onChangeText={e => setUserDetails(prev => ({...prev, email: e}))}
-            />
-            <CustomInput
-              placeholder={'Password'}
-              backgroundColor={'#edeef1'}
-              icon={<Ionicons name="lock-closed" size={22} color="#000" />}
-              value={userDetails.password}
-              onChangeText={e =>
-                setUserDetails(prev => ({...prev, password: e}))
-              }
-              secureTextEntry={true}
-            />
+          <Formik
+            initialValues={{email: '', password: ''}}
+            validationSchema={singinSchema}
+            onSubmit={value => handleSignin(value)}>
+            {({values, errors, touched, handleChange, handleSubmit}) => (
+              <View style={{gap: gap}}>
+                <View>
+                  <CustomInput
+                    placeholder={'Email'}
+                    backgroundColor={'#edeef1'}
+                    icon={<Ionicons name="mail" size={22} color="#000" />}
+                    value={values.email}
+                    onChangeText={handleChange('email')}
+                  />
+                  {touched.email && errors.email && (
+                    <Text style={styles.error}>{errors.email}</Text>
+                  )}
+                </View>
 
-            {/* <TouchableOpacity>
-            <Text>Forgot Password?</Text>
-          </TouchableOpacity> */}
+                <View>
+                  <CustomInput
+                    placeholder={'Password'}
+                    backgroundColor={'#edeef1'}
+                    icon={
+                      <Ionicons name="lock-closed" size={22} color="#000" />
+                    }
+                    value={values.password}
+                    onChangeText={handleChange('password')}
+                    secureTextEntry={true}
+                  />
+                  {touched.password && errors.password && (
+                    <Text style={styles.error}>{errors.password}</Text>
+                  )}
+                </View>
 
-            <CustomButton
-              title={'Login'}
-              height={45}
-              fontSize={21}
-              onPress={handleSignin}
-            />
-          </View>
+                {/* <TouchableOpacity>
+                  <Text>Forgot Password?</Text>
+                </TouchableOpacity> */}
+
+                <CustomButton
+                  title={'Login'}
+                  height={45}
+                  fontSize={21}
+                  onPress={handleSubmit}
+                />
+              </View>
+            )}
+          </Formik>
         </View>
 
         {/* bottom part for redirect to signin */}
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            marginBottom: 20,
-            marginTop: 10,
-          }}>
+        <View style={styles.createNewAccount}>
           <Text style={{fontSize: 15}}>Don't have an account?</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
             <Text
@@ -137,3 +140,27 @@ const Signin = ({navigation}) => {
 };
 
 export default Signin;
+
+const styles = StyleSheet.create({
+  formContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: gap,
+  },
+  formHeading: {
+    fontSize: 25,
+    fontWeight: '500',
+    color: '#333',
+    marginVertical: 15,
+  },
+  createNewAccount: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  error: {
+    color: 'red',
+    marginTop: 0.5,
+  },
+});

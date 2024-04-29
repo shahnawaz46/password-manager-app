@@ -9,6 +9,7 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
+import {Formik} from 'formik';
 
 // components
 import {gap} from '../utils/Spacing';
@@ -16,10 +17,7 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import {useAppTheme} from '../routes/Router';
 import Title from '../components/Title';
-import {useDataContext} from '../context/DataContext';
-import {formValidation} from '../utils/Validation';
 import axiosInstance from '../api/AxiosInstance';
-import {Formik} from 'formik';
 import {singupSchema} from '../validation/YupValidationSchema';
 
 const Signup = ({navigation}) => {
@@ -27,14 +25,7 @@ const Signup = ({navigation}) => {
     colors: {primary, textPrimary},
   } = useAppTheme();
 
-  const {setAuthDetails} = useDataContext();
-
-  const [userDetails, setUserDetails] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
+  // for show/hide password by click on icon
   const [secureField, setSecureField] = useState(true);
 
   const handleSignup = async value => {
@@ -75,14 +66,7 @@ const Signup = ({navigation}) => {
             }}
             validationSchema={singupSchema}
             onSubmit={value => handleSignup(value)}>
-            {({
-              values,
-              errors,
-              touched,
-              handleChange,
-              handleSubmit,
-              isSubmitting,
-            }) => (
+            {({values, errors, touched, handleChange, handleSubmit}) => (
               <View style={{gap: gap}}>
                 <View>
                   <CustomInput
