@@ -17,6 +17,7 @@ import {
   MenuOption,
   MenuTrigger,
 } from 'react-native-popup-menu';
+import {useNavigation} from '@react-navigation/native';
 
 // components
 import {useAppTheme} from '../routes/Router';
@@ -25,7 +26,6 @@ import {gap} from '../utils/Spacing';
 import Loading from './Loading';
 import axiosInstance from '../api/AxiosInstance';
 import {useDataContext} from '../context/DataContext';
-import {all} from 'axios';
 
 const AllPasswords = ({password, status, category, filterCategory}) => {
   const {
@@ -34,6 +34,7 @@ const AllPasswords = ({password, status, category, filterCategory}) => {
   console.log('AllPasswords:', password.length);
 
   const {setPasswordList} = useDataContext();
+  const navigation = useNavigation();
 
   const copyPassword = password => {
     Clipboard.setString(password);
@@ -48,7 +49,6 @@ const AllPasswords = ({password, status, category, filterCategory}) => {
   const onDelete = async (id, categoryType) => {
     try {
       const res = await axiosInstance.delete('/password', {data: {id}});
-      console.log(res.data);
 
       // after deleted from the database i am also removing from state
       const category = categoryType.toLowerCase();
@@ -65,14 +65,17 @@ const AllPasswords = ({password, status, category, filterCategory}) => {
           [category]: (prev.count[category] -= 1),
         },
       }));
-      Toast.show({type: 'success', text1: res.data.msg});
+      Toast.show({type: 'success', text1: res.data.msg, topOffset: 25});
     } catch (err) {
       Toast.show({
         type: 'error',
         text1: err?.response?.data?.error || err?.message,
+        topOffset: 25,
       });
     }
   };
+
+  const editVault = item => navigation.navigate('Add Password', item);
 
   return (
     <View style={styles.passwordContainer}>
@@ -103,7 +106,7 @@ const AllPasswords = ({password, status, category, filterCategory}) => {
           <Text style={{fontSize: 20}}>Not Available</Text>
         </View>
       ) : (
-        <View style={{flexGrow: 1}}>
+        <View style={{flex: 1, flexGrow: 1}}>
           <FlatList
             data={password}
             contentContainerStyle={styles.passwordCardContainer}
@@ -141,7 +144,7 @@ const AllPasswords = ({password, status, category, filterCategory}) => {
                         borderRadius: 10,
                       }}>
                       <MenuOption
-                        onSelect={() => alert(`Delete`)}
+                        onSelect={() => editVault(item)}
                         style={{paddingHorizontal: 10, paddingTop: 10}}>
                         <View
                           style={{
@@ -199,7 +202,6 @@ const styles = StyleSheet.create({
   passwordCardContainer: {
     gap: gap,
     flexGrow: 1,
-    zIndex: 1,
   },
   passwordCard: {
     width: '100%',

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {SafeAreaView, ScrollView, StyleSheet, Text, View} from 'react-native';
 import Toast from 'react-native-toast-message';
 import {Formik} from 'formik';
@@ -16,14 +16,22 @@ import {vaultSchema} from '../validation/YupValidationSchema';
 import axiosInstance from '../api/AxiosInstance';
 import {useDataContext} from '../context/DataContext';
 
-const AddPassword = () => {
+const AddPassword = ({route}) => {
   const {setPasswordList} = useDataContext();
+  const [initialState, setInitialState] = useState({
+    name: '',
+    userName: '',
+    password: '',
+    category: '',
+  });
+  const idRef = useRef(null);
 
   const handlePassword = async values => {
     try {
       const res = await axiosInstance.post('/password', values);
       const category = res.data.category.toLowerCase();
-      // after password added to the databse then updating the state
+
+      // after password added to the database then updating the state
       setPasswordList(prev => ({
         ...prev,
         all: {...prev.all, data: [res.data, ...prev.all.data]},
@@ -37,14 +45,70 @@ const AddPassword = () => {
           [category]: (prev.count[category] += 1),
         },
       }));
-      Toast.show({type: 'success', text1: 'Successfully Added'});
+      Toast.show({type: 'success', text1: 'Successfully Added', topOffset: 25});
     } catch (err) {
       Toast.show({
         type: 'error',
         text1: err?.response?.data?.error || err?.message,
+        topOffset: 25,
       });
     }
   };
+
+  const handlePasswordEdit = async values => {
+    const updatedValues = {};
+    Object.entries(values).forEach(([key, value]) => {
+      if (initialState[key] !== value) {
+        updatedValues[key] = value;
+      }
+    });
+
+    if (Object.keys(updatedValues).length === 0) return null;
+
+    try {
+      const res = await axiosInstance.patch('/password', {
+        _id: idRef.current,
+        ...updatedValues,
+      });
+      const category = res.data.category.toLowerCase();
+
+      // after password updated in database then updating the state
+      setPasswordList(prev => ({
+        ...prev,
+        all: {
+          ...prev.all,
+          data: prev.all.data.map(item =>
+            item._id === idRef.current ? res.data : item,
+          ),
+        },
+        [category]: {
+          ...prev[category],
+          data: prev[category].data.map(item =>
+            item._id === idRef.current ? res.data : item,
+          ),
+        },
+      }));
+      Toast.show({
+        type: 'success',
+        text1: 'Successfully Updated',
+        topOffset: 25,
+      });
+    } catch (err) {
+      Toast.show({
+        type: 'error',
+        text1: err?.response?.data?.error || err?.message,
+        topOffset: 25,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (route?.params) {
+      const {_id, ...rest} = route.params;
+      idRef.current = _id;
+      setInitialState(rest);
+    }
+  }, [route]);
 
   return (
     <ScrollView
@@ -55,11 +119,22 @@ const AddPassword = () => {
           <Text style={styles.formHeading}>Add New Password</Text>
 
           <Formik
-            initialValues={{name: '', userName: '', password: '', category: ''}}
+            initialValues={initialState}
+            enableReinitialize
             validationSchema={vaultSchema}
             onSubmit={(values, {resetForm}) => {
-              handlePassword(values);
-              resetForm({name: '', userName: '', password: '', category: ''});
+              if (idRef.current) {
+                handlePasswordEdit(values);
+              } else {
+                handlePassword(values);
+              }
+              setInitialState({
+                name: '',
+                password: '',
+                userName: '',
+                category: '',
+              });
+              resetForm(initialState);
             }}>
             {({
               values,
