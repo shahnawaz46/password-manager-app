@@ -16,14 +16,12 @@ const Profile = ({navigation}) => {
     colors: {textPrimary},
   } = useAppTheme();
   const {authDetails, setAuthDetails, logout} = useDataContext();
-  console.log('Profile: ', authDetails.userDetails);
 
   const uploadImage = async () => {
     try {
       const result = await ImagePicker.openPicker({
         cropping: true,
       });
-      console.log(result);
       setAuthDetails(prev => ({
         ...prev,
         userDetails: {...prev.userDetails, image: result.path},
@@ -36,7 +34,11 @@ const Profile = ({navigation}) => {
           topOffset: 25,
         });
       }
-      console.log(err.message);
+      Toast.show({
+        type: 'error',
+        text1: err?.response?.data?.error || err?.message,
+        topOffset: 25,
+      });
     }
   };
 

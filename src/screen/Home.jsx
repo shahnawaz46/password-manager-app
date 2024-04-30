@@ -17,6 +17,7 @@ import {gap} from '../utils/Spacing';
 import {tempPassword, useDataContext} from '../context/DataContext';
 import Title from '../components/Title';
 import Loading from '../components/Loading';
+import axiosInstance from '../api/AxiosInstance';
 
 const Home = ({navigation}) => {
   const {
@@ -46,7 +47,7 @@ const Home = ({navigation}) => {
   };
 
   // here i am calling customDebouce function and passing callBack function(where logic is written for search) and timeout(for delay)
-  const onSearch = customDebouce(e => {
+  const onSearch = customDebouce(async e => {
     const query = e[0];
 
     if (!query) {
@@ -56,16 +57,11 @@ const Home = ({navigation}) => {
 
     setStatus('loading');
 
-    const result = tempPassword.filter(item => {
-      if (category === 'App' || category === 'Browser')
-        return (
-          item.name.toUpperCase().includes(query.toUpperCase()) &&
-          item.category === category
-        );
+    const res = await axiosInstance.get(
+      `/password/search?category=${category}&search=${query}`,
+    );
 
-      return item.name.toUpperCase().includes(query.toUpperCase());
-    });
-    setPasswords(result);
+    setPasswords(res.data);
 
     setStatus('success');
   }, 600);

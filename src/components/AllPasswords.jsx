@@ -31,7 +31,6 @@ const AllPasswords = ({password, status, category, filterCategory}) => {
   const {
     colors: {textPrimary},
   } = useAppTheme();
-  console.log('AllPasswords:', password.length);
 
   const {setPasswordList} = useDataContext();
   const navigation = useNavigation();

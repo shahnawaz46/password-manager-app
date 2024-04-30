@@ -67,7 +67,11 @@ const DataContextProvider = ({children}) => {
       setAuthDetails(authDetailsInitialState);
       await Keychain.resetGenericPassword();
     } catch (err) {
-      console.log(err);
+      Toast.show({
+        type: 'error',
+        text1: err?.response?.data?.error || err?.message,
+        topOffset: 25,
+      });
     }
   };
 
