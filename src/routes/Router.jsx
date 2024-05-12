@@ -8,7 +8,7 @@ import {useDataContext} from '../context/DataContext';
 import AppStack from './AppStack';
 import AuthStack from './AuthStack';
 import Loading from '../components/Loading';
-import axiosInstance from '../api/AxiosInstance';
+import axiosInstance from '../axios/AxiosInstance';
 
 const theme = {
   ...DefaultTheme,
@@ -41,7 +41,6 @@ const Router = () => {
         const res = await axiosInstance.get('/user/profile');
         setAuthDetails({
           isLoggedIn: true,
-          token: isToken,
           userDetails: {
             fullName: res.data?.fullName,
             email: res.data?.email,

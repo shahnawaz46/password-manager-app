@@ -13,8 +13,9 @@ import CustomButton from '../components/CustomButton';
 import {gap} from '../utils/Spacing';
 import DropDown from '../components/DropDown';
 import {vaultSchema} from '../validation/YupValidationSchema';
-import axiosInstance from '../api/AxiosInstance';
+import axiosInstance from '../axios/AxiosInstance';
 import {useDataContext} from '../context/DataContext';
+import {decrypt, encrypt} from '../utils/EncDec';
 
 const AddPassword = ({route}) => {
   const {setPasswordList} = useDataContext();
@@ -27,8 +28,19 @@ const AddPassword = ({route}) => {
   const idRef = useRef(null);
 
   const handlePassword = async values => {
+    const encrypted = await encrypt({
+      userName: values.userName,
+      password: values.password,
+    });
+
+    const newvalues = {
+      data: encrypted,
+      name: values.name,
+      category: values.category,
+    };
+
     try {
-      const res = await axiosInstance.post('/password', values);
+      const res = await axiosInstance.post('/password', newvalues);
       const category = res.data.category.toLowerCase();
 
       // after password added to the database then updating the state
@@ -65,10 +77,24 @@ const AddPassword = ({route}) => {
 
     if (Object.keys(updatedValues).length === 0) return null;
 
+    // return console.log(values, updatedValues);
+    const encrypted = await encrypt({
+      userName: values.userName,
+      password: values.password,
+    });
+
+    updatedValues?.userName && delete updatedValues.userName;
+    updatedValues?.password && delete updatedValues.password;
+
+    const newvalues = {
+      data: encrypted,
+      ...updatedValues,
+    };
+
     try {
       const res = await axiosInstance.patch('/password', {
         _id: idRef.current,
-        ...updatedValues,
+        ...newvalues,
       });
       const category = res.data.category.toLowerCase();
 
@@ -125,15 +151,15 @@ const AddPassword = ({route}) => {
             onSubmit={(values, {resetForm}) => {
               if (idRef.current) {
                 handlePasswordEdit(values);
+                setInitialState({
+                  name: '',
+                  password: '',
+                  userName: '',
+                  category: '',
+                });
               } else {
                 handlePassword(values);
               }
-              setInitialState({
-                name: '',
-                password: '',
-                userName: '',
-                category: '',
-              });
               resetForm(initialState);
             }}>
             {({

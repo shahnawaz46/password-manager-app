@@ -19,7 +19,7 @@ import CustomButton from '../components/CustomButton';
 import {useAppTheme} from '../routes/Router';
 import Title from '../components/Title';
 import {useDataContext} from '../context/DataContext';
-import axiosInstance from '../api/AxiosInstance';
+import axiosInstance from '../axios/AxiosInstance';
 import {singinSchema} from '../validation/YupValidationSchema';
 
 const Signin = ({navigation}) => {
@@ -34,13 +34,13 @@ const Signin = ({navigation}) => {
       const res = await axiosInstance.post('/user/login', value);
 
       // using Keychain instead of asyncLocalStorage because Keychain is secure
-      // and Keychain store username and password so here username will be Token and password will be value of token
+      // and Keychain store username and password so here username will be id and password will be token
       const token = res.data?.token;
-      await Keychain.setGenericPassword('Token', token);
+      const id = res.data?._id;
+      await Keychain.setGenericPassword(id, token);
       setAuthDetails(prev => ({
         ...prev,
         isLoggedIn: true,
-        token: token,
         userDetails: {
           fullName: res.data?.fullName,
           email: res.data?.email,
@@ -53,6 +53,10 @@ const Signin = ({navigation}) => {
         text1: err?.response?.data?.error || err.message,
         topOffset: 25,
       });
+
+      if (err?.response?.data?.error === 'User not verified, Please verify') {
+        navigation.navigate('Verify OTP', {email: value.email});
+      }
     }
   };
 

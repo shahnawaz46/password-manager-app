@@ -17,7 +17,8 @@ import {gap} from '../utils/Spacing';
 import {tempPassword, useDataContext} from '../context/DataContext';
 import Title from '../components/Title';
 import Loading from '../components/Loading';
-import axiosInstance from '../api/AxiosInstance';
+import axiosInstance from '../axios/AxiosInstance';
+import {decrypt} from '../utils/EncDec';
 
 const Home = ({navigation}) => {
   const {
@@ -74,26 +75,45 @@ const Home = ({navigation}) => {
     setCategory(value);
   };
 
-  useEffect(() => {
-    if (category === 'All') {
-      passwordList.all.status === 'loading' && fetchPassword('All');
-      if (passwordList.all.status === 'success') {
-        setPasswords(passwordList.all.data);
-        setStatus('success');
-      }
-    } else if (category === 'App') {
-      passwordList.app.status === 'loading' && fetchPassword('App');
-      if (passwordList.app.status === 'success') {
-        setPasswords(passwordList.app.data);
-        setStatus('success');
-      }
-    } else if (category === 'Browser') {
-      passwordList.browser.status === 'loading' && fetchPassword('Browser');
-      if (passwordList.browser.status === 'success') {
-        setPasswords(passwordList.browser.data);
-        setStatus('success');
-      }
+  const gettingData = async data => {
+    const password = [];
+    for (const item of data) {
+      const {data, ...rest} = item;
+      const result = await decrypt(data);
+      result
+        ? password.push({...rest, ...JSON.parse(result)})
+        : password.push({...rest});
     }
+
+    return password;
+  };
+
+  useEffect(() => {
+    // Immediately Invoked Function Expressions (IIFEs):
+    (async function () {
+      if (category === 'All') {
+        passwordList.all.status === 'loading' && fetchPassword('All');
+        if (passwordList.all.status === 'success') {
+          const newPasswordData = await gettingData(passwordList.all.data);
+          setPasswords(newPasswordData);
+          setStatus('success');
+        }
+      } else if (category === 'App') {
+        passwordList.app.status === 'loading' && fetchPassword('App');
+        if (passwordList.app.status === 'success') {
+          const newPasswordData = await gettingData(passwordList.app.data);
+          setPasswords(newPasswordData);
+          setStatus('success');
+        }
+      } else if (category === 'Browser') {
+        passwordList.browser.status === 'loading' && fetchPassword('Browser');
+        if (passwordList.browser.status === 'success') {
+          const newPasswordData = await gettingData(passwordList.browser.data);
+          setPasswords(newPasswordData);
+          setStatus('success');
+        }
+      }
+    })();
   }, [passwordList, category]);
 
   if (passwordList.all.status === 'loading') {

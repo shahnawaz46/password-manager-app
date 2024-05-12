@@ -17,7 +17,7 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import {useAppTheme} from '../routes/Router';
 import Title from '../components/Title';
-import axiosInstance from '../api/AxiosInstance';
+import axiosInstance from '../axios/AxiosInstance';
 import {singupSchema} from '../validation/YupValidationSchema';
 
 const Signup = ({navigation}) => {

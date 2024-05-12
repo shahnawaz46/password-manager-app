@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as Keychain from 'react-native-keychain';
 
-const baseURL = 'http://192.168.1.14:9000/api';
+const baseURL = 'http://192.168.1.11:9000/api';
 
 const axiosInstance = axios.create({
   baseURL: baseURL,

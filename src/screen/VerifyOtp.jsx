@@ -12,7 +12,7 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import {useAppTheme} from '../routes/Router';
 import {useDataContext} from '../context/DataContext';
-import axiosInstance from '../api/AxiosInstance';
+import axiosInstance from '../axios/AxiosInstance';
 
 const VerifyOtp = ({navigation, route}) => {
   const {
@@ -38,11 +38,11 @@ const VerifyOtp = ({navigation, route}) => {
       });
 
       const token = res.data?.token;
-      await Keychain.setGenericPassword('Token', token);
+      const id = res.data?._id;
+      await Keychain.setGenericPassword(id, token);
       setAuthDetails(prev => ({
         ...prev,
         isLoggedIn: true,
-        token: token,
         userDetails: {
           fullName: res.data?.fullName,
           email: res.data?.email,
@@ -99,9 +99,7 @@ const VerifyOtp = ({navigation, route}) => {
             color: '#333',
             textAlign: 'center',
           }}>
-          {secureEmail(
-            authDetails.userDetails?.email || 'shahnawaz9887@gmail.com',
-          )}
+          {secureEmail(route?.params?.email || '')}
         </Text>
       </View>
 
