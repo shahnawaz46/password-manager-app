@@ -17,7 +17,7 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import {useAppTheme} from '../routes/Router';
 import Title from '../components/Title';
-import axiosInstance from '../axios/AxiosInstance';
+import axiosInstance from '../api/AxiosInstance';
 import {singupSchema} from '../validation/YupValidationSchema';
 
 const Signup = ({navigation}) => {
@@ -31,7 +31,7 @@ const Signup = ({navigation}) => {
   const handleSignup = async value => {
     try {
       await axiosInstance.post('/user/register', value);
-      navigation.navigate('Verify OTP', {email: value.email});
+      navigation.navigate('Verify OTP', {email: value.email, type: 'signup'});
     } catch (err) {
       Toast.show({
         type: 'error',

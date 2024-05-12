@@ -8,7 +8,7 @@ import {useDataContext} from '../context/DataContext';
 import AppStack from './AppStack';
 import AuthStack from './AuthStack';
 import Loading from '../components/Loading';
-import axiosInstance from '../axios/AxiosInstance';
+import axiosInstance from '../api/AxiosInstance';
 
 const theme = {
   ...DefaultTheme,

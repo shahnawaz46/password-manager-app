@@ -4,6 +4,8 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Signin from '../screen/Signin';
 import Signup from '../screen/Signup';
 import VerifyOtp from '../screen/VerifyOtp';
+import ForgotPassword from '../screen/ForgotPassword';
+import UpdatePassword from '../screen/UpdatePassword';
 
 const StackNavigation = createNativeStackNavigator();
 
@@ -15,6 +17,14 @@ function AuthStack() {
       <StackNavigation.Screen name="Signin" component={Signin} />
       <StackNavigation.Screen name="Signup" component={Signup} />
       <StackNavigation.Screen name="Verify OTP" component={VerifyOtp} />
+      <StackNavigation.Screen
+        name="Forgot Password"
+        component={ForgotPassword}
+      />
+      <StackNavigation.Screen
+        name="Update Password"
+        component={UpdatePassword}
+      />
     </StackNavigation.Navigator>
   );
 }

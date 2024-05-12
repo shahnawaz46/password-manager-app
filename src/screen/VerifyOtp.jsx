@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import * as Keychain from 'react-native-keychain';
 
@@ -12,14 +11,14 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import {useAppTheme} from '../routes/Router';
 import {useDataContext} from '../context/DataContext';
-import axiosInstance from '../axios/AxiosInstance';
+import axiosInstance from '../api/AxiosInstance';
 
 const VerifyOtp = ({navigation, route}) => {
   const {
     colors: {primary, textPrimary},
   } = useAppTheme();
 
-  const {authDetails, setAuthDetails} = useDataContext();
+  const {setAuthDetails} = useDataContext();
 
   const [otp, setOTP] = useState(null);
 
@@ -37,24 +36,48 @@ const VerifyOtp = ({navigation, route}) => {
         email: route?.params?.email,
       });
 
-      const token = res.data?.token;
-      const id = res.data?._id;
-      await Keychain.setGenericPassword(id, token);
-      setAuthDetails(prev => ({
-        ...prev,
-        isLoggedIn: true,
-        userDetails: {
-          fullName: res.data?.fullName,
-          email: res.data?.email,
-          image: res.data?.profile,
-        },
-      }));
+      if (route?.params?.type === 'signup') {
+        const token = res.data?.token;
+        const id = res.data?._id;
+        await Keychain.setGenericPassword(id, token);
+        setAuthDetails(prev => ({
+          ...prev,
+          isLoggedIn: true,
+          userDetails: {
+            fullName: res.data?.fullName,
+            email: res.data?.email,
+            image: res.data?.profile,
+          },
+        }));
+      } else if (route?.params?.type === 'forgot-password') {
+        navigation.navigate('Update Password', {email: res.data?.email});
+      }
     } catch (err) {
       Toast.show({
         type: 'error',
         text1: err?.response?.data?.error || err.message,
         topOffset: 25,
       });
+    }
+  };
+
+  const resendOtp = async () => {
+    try {
+      const res = await axiosInstance.post('/user/resend-otp', {
+        email: route?.params?.email,
+        type: 'resend-otp',
+      });
+      Toast.show({type: 'success', text1: res.data.message});
+    } catch (err) {
+      Toast.show({
+        type: 'error',
+        text1: err?.response?.data?.error || err.message,
+        topOffset: 25,
+      });
+
+      if (err?.response?.data?.step === 'redirect') {
+        navigation.navigate('Signin');
+      }
     }
   };
 
@@ -91,7 +114,7 @@ const VerifyOtp = ({navigation, route}) => {
             color: '#333',
             textAlign: 'center',
           }}>
-          Please enter the code sent to
+          Please Enter The Code Sent To
         </Text>
         <Text
           style={{
@@ -103,7 +126,7 @@ const VerifyOtp = ({navigation, route}) => {
         </Text>
       </View>
 
-      <View style={{flex: 1, justifyContent: 'center', gap: gap, padding: 40}}>
+      <View style={{flex: 1, justifyContent: 'center', gap: gap, padding: 20}}>
         <CustomInput
           placeholder={'Enter OTP'}
           backgroundColor={'#edeef1'}
@@ -118,6 +141,15 @@ const VerifyOtp = ({navigation, route}) => {
           fontSize={21}
           onPress={handleVerifyOTP}
         />
+
+        <View style={styles.resendCode}>
+          <Text style={{fontSize: 16}}>Didn't get the code or expire? </Text>
+          <TouchableOpacity onPress={resendOtp}>
+            <Text style={{color: primary, fontWeight: '500', fontSize: 16}}>
+              Click to resend
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -131,5 +163,10 @@ const styles = StyleSheet.create({
     borderColor: '#edeef1',
     borderRadius: 50,
     padding: 15,
+  },
+  resendCode: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

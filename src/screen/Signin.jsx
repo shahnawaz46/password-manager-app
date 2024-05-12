@@ -19,7 +19,7 @@ import CustomButton from '../components/CustomButton';
 import {useAppTheme} from '../routes/Router';
 import Title from '../components/Title';
 import {useDataContext} from '../context/DataContext';
-import axiosInstance from '../axios/AxiosInstance';
+import axiosInstance from '../api/AxiosInstance';
 import {singinSchema} from '../validation/YupValidationSchema';
 
 const Signin = ({navigation}) => {
@@ -114,9 +114,10 @@ const Signin = ({navigation}) => {
                   )}
                 </View>
 
-                {/* <TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Forgot Password')}>
                   <Text>Forgot Password?</Text>
-                </TouchableOpacity> */}
+                </TouchableOpacity>
 
                 <CustomButton
                   title={'Login'}
