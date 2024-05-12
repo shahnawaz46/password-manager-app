@@ -15,10 +15,10 @@ import DropDown from '../components/DropDown';
 import {vaultSchema} from '../validation/YupValidationSchema';
 import axiosInstance from '../axios/AxiosInstance';
 import {useDataContext} from '../context/DataContext';
-import {decrypt, encrypt} from '../utils/EncDec';
+import {encrypt} from '../utils/EncDec';
 
 const AddPassword = ({route}) => {
-  const {setPasswordList} = useDataContext();
+  const {passwordList, setPasswordList} = useDataContext();
   const [initialState, setInitialState] = useState({
     name: '',
     userName: '',
@@ -28,6 +28,7 @@ const AddPassword = ({route}) => {
   const idRef = useRef(null);
 
   const handlePassword = async values => {
+    // encrypting userName and password of vault
     const encrypted = await encrypt({
       userName: values.userName,
       password: values.password,
@@ -69,6 +70,7 @@ const AddPassword = ({route}) => {
 
   const handlePasswordEdit = async values => {
     const updatedValues = {};
+    // here i am checking which value is edited/changed because i am using patch so i will pass only the updated value
     Object.entries(values).forEach(([key, value]) => {
       if (initialState[key] !== value) {
         updatedValues[key] = value;
@@ -77,12 +79,13 @@ const AddPassword = ({route}) => {
 
     if (Object.keys(updatedValues).length === 0) return null;
 
-    // return console.log(values, updatedValues);
+    //  here after editing any field I am encrypting the username and password again
     const encrypted = await encrypt({
       userName: values.userName,
       password: values.password,
     });
 
+    // if userName or password is edited then i am removing it from the object because i am not passing plain userName or password
     updatedValues?.userName && delete updatedValues.userName;
     updatedValues?.password && delete updatedValues.password;
 
@@ -96,24 +99,51 @@ const AddPassword = ({route}) => {
         _id: idRef.current,
         ...newvalues,
       });
-      const category = res.data.category.toLowerCase();
+
+      const oldCategory = initialState.category.toLowerCase();
+      const updatedCategory = res.data.category.toLowerCase();
 
       // after password updated in database then updating the state
-      setPasswordList(prev => ({
-        ...prev,
-        all: {
-          ...prev.all,
-          data: prev.all.data.map(item =>
-            item._id === idRef.current ? res.data : item,
-          ),
-        },
-        [category]: {
-          ...prev[category],
-          data: prev[category].data.map(item =>
-            item._id === idRef.current ? res.data : item,
-          ),
-        },
-      }));
+      const all = {
+        ...passwordList.all,
+        data: passwordList.all.data.map(item =>
+          item._id === idRef.current ? res.data : item,
+        ),
+      };
+
+      // if category is also updated then i have to remove edited data from old category and add into new category same for count
+      let updated = {};
+      if (updatedValues?.category) {
+        updated = {
+          [oldCategory]: {
+            ...passwordList[oldCategory],
+            data: passwordList[oldCategory].data.filter(
+              item => item._id !== idRef.current,
+            ),
+          },
+          [updatedCategory]: {
+            ...passwordList[updatedCategory],
+            data: [res.data, ...passwordList[updatedCategory].data],
+          },
+          count: {
+            ...passwordList.count,
+            [oldCategory]: (passwordList.count[oldCategory] -= 1),
+            [updatedCategory]: (passwordList.count[updatedCategory] += 1),
+          },
+        };
+      } else {
+        updated = {
+          [oldCategory]: {
+            ...passwordList[oldCategory],
+            data: passwordList[oldCategory].data.map(item =>
+              item._id === idRef.current ? res.data : item,
+            ),
+          },
+        };
+      }
+
+      setPasswordList(prev => ({...prev, all, ...updated}));
+
       Toast.show({
         type: 'success',
         text1: 'Successfully Updated',

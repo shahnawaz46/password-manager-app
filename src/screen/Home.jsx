@@ -52,7 +52,10 @@ const Home = ({navigation}) => {
     const query = e[0];
 
     if (!query) {
-      setPasswords(passwordList[category.toLocaleLowerCase()].data);
+      const newPasswordData = await gettingData(
+        passwordList[category.toLocaleLowerCase()].data,
+      );
+      setPasswords(newPasswordData);
       return;
     }
 
@@ -61,8 +64,8 @@ const Home = ({navigation}) => {
     const res = await axiosInstance.get(
       `/password/search?category=${category}&search=${query}`,
     );
-
-    setPasswords(res.data);
+    const newPasswordData = await gettingData(res.data);
+    setPasswords(newPasswordData);
 
     setStatus('success');
   }, 600);
@@ -75,6 +78,7 @@ const Home = ({navigation}) => {
     setCategory(value);
   };
 
+  // function for getting all the vault by decrypt
   const gettingData = async data => {
     const password = [];
     for (const item of data) {
