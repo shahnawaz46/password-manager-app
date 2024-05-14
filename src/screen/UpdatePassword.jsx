@@ -10,7 +10,7 @@ import {gap} from '../utils/Spacing';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import {useAppTheme} from '../routes/Router';
-import axiosInstance from '../api/AxiosInstance';
+import axiosInstance from '../axios/AxiosInstance';
 import {forgotPasswordSchema} from '../validation/YupValidationSchema';
 
 const UpdatePassword = ({navigation, route}) => {

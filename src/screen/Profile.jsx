@@ -3,17 +3,17 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ImagePicker from 'react-native-image-crop-picker';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Toast from 'react-native-toast-message';
 
 // components
-import CustomButton from '../components/CustomButton';
 import {useDataContext} from '../context/DataContext';
-import Toast from 'react-native-toast-message';
 import {useAppTheme} from '../routes/Router';
 import {gap} from '../utils/Spacing';
+import ProfileItem from '../components/ProfileItem';
 
 const Profile = ({navigation}) => {
   const {
-    colors: {textPrimary},
+    colors: {primary, textPrimary},
   } = useAppTheme();
   const {authDetails, setAuthDetails, logout} = useDataContext();
 
@@ -42,10 +42,6 @@ const Profile = ({navigation}) => {
     }
   };
 
-  const downloadAllPassword = () => {
-    console.log('downloadAllPassword');
-  };
-
   return (
     <View style={{flex: 1, padding: gap}}>
       {/* top container with name and back icon */}
@@ -71,13 +67,6 @@ const Profile = ({navigation}) => {
           }}
           style={styles.profileImage}
         />
-        <Ionicons
-          name="camera"
-          size={26}
-          color={'#000'}
-          style={{position: 'absolute', bottom: 8}}
-          onPress={uploadImage}
-        />
       </View>
 
       {/* user name and email */}
@@ -90,35 +79,33 @@ const Profile = ({navigation}) => {
 
       {/* bottom container */}
       <View style={styles.bottomContainer}>
-        <TouchableOpacity
-          style={styles.bottomIcon_Container}
-          onPress={downloadAllPassword}>
-          <MaterialCommunityIcons
-            name="folder-download-outline"
-            size={22}
-            color={textPrimary}
-          />
-          <Text style={{fontSize: 17, color: textPrimary}}>
-            Export All Password
-          </Text>
-        </TouchableOpacity>
+        <ProfileItem
+          title={'My Account'}
+          subTitle={'Changes to your account details'}
+          icon={<Ionicons name="person-outline" size={20} color={primary} />}
+          onPress={() => navigation.navigate('Personal Details')}
+        />
 
-        <TouchableOpacity style={styles.bottomIcon_Container}>
-          <MaterialCommunityIcons
-            name="lock-outline"
-            size={25}
-            color={textPrimary}
-          />
-          <Text style={{fontSize: 17, color: textPrimary}}>
-            Change Password
-          </Text>
-        </TouchableOpacity>
+        {/* <ProfileItem
+          title={'Change Password'}
+          subTitle={'Update your password for better security'}
+          icon={
+            <MaterialCommunityIcons
+              name="lock-outline"
+              size={20}
+              color={primary}
+            />
+          }
+          onPress={() => navigation.navigate('Forgot Password')}
+        /> */}
 
-        <CustomButton
-          title={'Logout'}
+        <ProfileItem
+          title={'Log out'}
+          subTitle={'Further secure your account for safety'}
+          icon={
+            <MaterialCommunityIcons name="logout" size={20} color={primary} />
+          }
           onPress={logout}
-          fontSize={20}
-          height={42}
         />
       </View>
     </View>
@@ -157,18 +144,13 @@ const styles = StyleSheet.create({
   userDetails_Container: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 12,
   },
   bottomContainer: {
     borderTopWidth: 2,
     borderColor: '#edeef1',
     paddingVertical: 20,
     marginTop: 30,
-    gap: gap,
-  },
-  bottomIcon_Container: {
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: gap,
   },
 });

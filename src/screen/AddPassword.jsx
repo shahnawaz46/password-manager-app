@@ -13,7 +13,7 @@ import CustomButton from '../components/CustomButton';
 import {gap} from '../utils/Spacing';
 import DropDown from '../components/DropDown';
 import {vaultSchema} from '../validation/YupValidationSchema';
-import axiosInstance from '../api/AxiosInstance';
+import axiosInstance from '../axios/AxiosInstance';
 import {useDataContext} from '../context/DataContext';
 import {encrypt} from '../utils/EncDec';
 

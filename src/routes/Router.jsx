@@ -8,7 +8,7 @@ import {useDataContext} from '../context/DataContext';
 import AppStack from './AppStack';
 import AuthStack from './AuthStack';
 import Loading from '../components/Loading';
-import axiosInstance from '../api/AxiosInstance';
+import axiosInstance from '../axios/AxiosInstance';
 
 const theme = {
   ...DefaultTheme,
@@ -39,14 +39,8 @@ const Router = () => {
       const isToken = await Keychain.getGenericPassword();
       if (isToken?.password) {
         const res = await axiosInstance.get('/user/profile');
-        setAuthDetails({
-          isLoggedIn: true,
-          userDetails: {
-            fullName: res.data?.fullName,
-            email: res.data?.email,
-            image: res.data?.profile,
-          },
-        });
+
+        setAuthDetails({isLoggedIn: true, userDetails: res.data});
       }
     } catch (err) {
       console.log(err?.response?.data?.error || err?.message);

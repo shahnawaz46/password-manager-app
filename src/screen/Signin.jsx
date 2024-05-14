@@ -19,7 +19,7 @@ import CustomButton from '../components/CustomButton';
 import {useAppTheme} from '../routes/Router';
 import Title from '../components/Title';
 import {useDataContext} from '../context/DataContext';
-import axiosInstance from '../api/AxiosInstance';
+import axiosInstance from '../axios/AxiosInstance';
 import {singinSchema} from '../validation/YupValidationSchema';
 
 const Signin = ({navigation}) => {
@@ -35,16 +35,13 @@ const Signin = ({navigation}) => {
 
       // using Keychain instead of asyncLocalStorage because Keychain is secure
       // and Keychain store username and password so here username will be id and password will be token
-      const token = res.data?.token;
-      const id = res.data?._id;
+      const {token, _id: id, ...rest} = res.data;
       await Keychain.setGenericPassword(id, token);
       setAuthDetails(prev => ({
         ...prev,
         isLoggedIn: true,
         userDetails: {
-          fullName: res.data?.fullName,
-          email: res.data?.email,
-          image: res.data?.profile,
+          ...rest,
         },
       }));
     } catch (err) {

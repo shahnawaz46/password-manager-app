@@ -126,7 +126,7 @@ apply from: file("../../node_modules/@react-native-community/cli-platform-androi
 
 // for use vector icons
 project.ext.vectoricons = [
-    iconFontNames: [ 'MaterialIcons.ttf', 'MaterialCommunityIcons.ttf','EvilIcons.ttf','AntDesign.ttf','FontAwesome.ttf',"Ionicons.ttf" ] // Specify font files
+    iconFontNames: [ 'MaterialIcons.ttf', 'MaterialCommunityIcons.ttf','EvilIcons.ttf','AntDesign.ttf','FontAwesome.ttf',"Ionicons.ttf",  ] // Specify font files
 ]
 
 apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle")

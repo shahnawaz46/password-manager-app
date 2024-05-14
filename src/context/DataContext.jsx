@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useState} from 'react';
-import axiosInstance from '../api/AxiosInstance';
+import axiosInstance from '../axios/AxiosInstance';
 import * as Keychain from 'react-native-keychain';
 import Toast from 'react-native-toast-message';
 

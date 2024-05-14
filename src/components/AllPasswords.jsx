@@ -24,7 +24,7 @@ import {useAppTheme} from '../routes/Router';
 import CustomButton from './CustomButton';
 import {gap} from '../utils/Spacing';
 import Loading from './Loading';
-import axiosInstance from '../api/AxiosInstance';
+import axiosInstance from '../axios/AxiosInstance';
 import {useDataContext} from '../context/DataContext';
 
 const AllPasswords = ({password, status, category, filterCategory}) => {

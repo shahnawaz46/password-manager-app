@@ -49,3 +49,17 @@ export const vaultSchema = Yup.object({
   password: Yup.string().required('Password is Required'),
   category: Yup.string().required('Category is required'),
 });
+
+export const accountUpdateSchema = Yup.object({
+  fullName: Yup.string().required('Full Name is required'),
+  phoneNo: Yup.string().matches(
+    /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/,
+    'Enter a valid phone number',
+  ),
+  gender: Yup.string()
+    .oneOf(
+      ['Male', 'Female', 'Others'],
+      'Please select gender with provided options',
+    )
+    .nullable(true),
+});

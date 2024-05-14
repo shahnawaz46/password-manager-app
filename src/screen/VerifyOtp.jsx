@@ -11,7 +11,7 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import {useAppTheme} from '../routes/Router';
 import {useDataContext} from '../context/DataContext';
-import axiosInstance from '../api/AxiosInstance';
+import axiosInstance from '../axios/AxiosInstance';
 
 const VerifyOtp = ({navigation, route}) => {
   const {
@@ -35,18 +35,14 @@ const VerifyOtp = ({navigation, route}) => {
         otp,
         email: route?.params?.email,
       });
-
       if (route?.params?.type === 'signup') {
-        const token = res.data?.token;
-        const id = res.data?._id;
+        const {token, _id: id, ...rest} = res.data;
         await Keychain.setGenericPassword(id, token);
         setAuthDetails(prev => ({
           ...prev,
           isLoggedIn: true,
           userDetails: {
-            fullName: res.data?.fullName,
-            email: res.data?.email,
-            image: res.data?.profile,
+            ...rest,
           },
         }));
       } else if (route?.params?.type === 'forgot-password') {
@@ -130,6 +126,7 @@ const VerifyOtp = ({navigation, route}) => {
         <CustomInput
           placeholder={'Enter OTP'}
           backgroundColor={'#edeef1'}
+          type="numeric"
           value={otp}
           onChangeText={setOTP}
           maxLength={6}

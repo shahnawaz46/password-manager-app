@@ -17,7 +17,7 @@ import {gap} from '../utils/Spacing';
 import {tempPassword, useDataContext} from '../context/DataContext';
 import Title from '../components/Title';
 import Loading from '../components/Loading';
-import axiosInstance from '../api/AxiosInstance';
+import axiosInstance from '../axios/AxiosInstance';
 import {decrypt} from '../utils/EncDec';
 
 const Home = ({navigation}) => {
