@@ -29,14 +29,21 @@ const AccountDetails = ({navigation}) => {
   const {authDetails, setAuthDetails} = useDataContext();
 
   const [accountDetails, setAccountDetails] = useState({});
-  const [profileImage, setProfileImage] = useState(null);
+  const [profileImage, setProfileImage] = useState({});
 
-  const uploadImage = async () => {
+  const uploadImage = async setFieldValue => {
     try {
       const result = await ImagePicker.openPicker({
         cropping: true,
       });
-      setProfileImage(result.path);
+
+      setProfileImage({
+        uri: result.path,
+        type: result.mime,
+        name: 'user-profile-image', // i was missing this line and it took 2-3 hours to understand that this line is causing issue, because i was not getting the formData properly in nodejs server(using multer)
+      });
+
+      setFieldValue('profileImage', result.path);
     } catch (err) {
       if (err?.message === 'User did not grant camera permission.') {
         return Toast.show({
@@ -54,25 +61,21 @@ const AccountDetails = ({navigation}) => {
   };
 
   const handleUpdateProfile = async values => {
-    const updatedValues = {};
+    const formData = new FormData();
     // here i am checking which value is edited/changed because i am using patch so i will pass only the updated value
     Object.entries(values).forEach(([key, value]) => {
       if (accountDetails[key] !== value) {
-        updatedValues[key] = value;
+        if (key === 'profileImage') formData.append(key, profileImage);
+        else formData.append(key, value);
       }
     });
 
-    // if (accountDetails.image !== profileImage) {
-    //   updatedValues['image'] = profileImage;
-    // }
-
-    if (Object.keys(updatedValues).length === 0) return null;
-
     try {
-      const res = await axiosInstance.patch(
-        '/user/update-profile',
-        updatedValues,
-      );
+      const res = await axiosInstance.patch('/user/update-profile', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Required for FormData uploads
+        },
+      });
       setAuthDetails({isLoggedIn: true, userDetails: res.data});
       Toast.show({
         type: 'success',
@@ -80,6 +83,7 @@ const AccountDetails = ({navigation}) => {
         topOffset: 25,
       });
     } catch (err) {
+      console.log(err);
       Toast.show({
         type: 'error',
         text1: err?.response?.data?.error || err?.message,
@@ -107,26 +111,6 @@ const AccountDetails = ({navigation}) => {
         </Text>
       </View>
 
-      {/* profile image/picture container */}
-      <View style={styles.profileImageContainer}>
-        <Image
-          source={{
-            uri:
-              profileImage ||
-              accountDetails?.image ||
-              'https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_1280.png',
-          }}
-          style={styles.profileImage}
-        />
-        <Ionicons
-          name="camera"
-          size={26}
-          color={'#000'}
-          style={{position: 'absolute', bottom: 8}}
-          onPress={uploadImage}
-        />
-      </View>
-
       <Formik
         initialValues={accountDetails}
         enableReinitialize
@@ -139,8 +123,29 @@ const AccountDetails = ({navigation}) => {
           handleChange,
           setFieldValue,
           handleSubmit,
+          isValid,
+          dirty,
         }) => (
-          <View style={styles.bottomContainer}>
+          <View style={styles.formContainer}>
+            {/* profile image/picture container */}
+            <View style={styles.profileImageContainer}>
+              <Image
+                source={{
+                  uri:
+                    values.profileImage ||
+                    'https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_1280.png',
+                }}
+                style={styles.profileImage}
+              />
+              <Ionicons
+                name="camera"
+                size={26}
+                color={'#000'}
+                style={{position: 'absolute', bottom: 8}}
+                onPress={() => uploadImage(setFieldValue)}
+              />
+            </View>
+
             <View>
               <CustomInput2
                 placeholder={'Your Full Name'}
@@ -195,6 +200,7 @@ const AccountDetails = ({navigation}) => {
 
             <CustomButton
               title={'Update'}
+              disabled={!(dirty && isValid)}
               fontSize={20}
               height={45}
               onPress={handleSubmit}
@@ -222,9 +228,14 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     padding: 2,
   },
+  formContainer: {
+    paddingVertical: 20,
+    marginTop: 30,
+    gap: gap + 10,
+  },
   profileImageContainer: {
     alignItems: 'center',
-    marginTop: 30,
+    marginBottom: 20,
     position: 'relative',
   },
   profileImage: {
@@ -234,11 +245,6 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     borderWidth: 2,
     borderColor: '#edeef1',
-  },
-  bottomContainer: {
-    paddingVertical: 20,
-    marginTop: 30,
-    gap: gap + 10,
   },
   error: {
     color: 'red',

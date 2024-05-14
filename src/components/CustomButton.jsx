@@ -10,6 +10,7 @@ const CustomButton = ({
   onPress,
   height = 30,
   fontSize = 15,
+  disabled = false,
 }) => {
   const {
     colors: {primary},
@@ -24,8 +25,11 @@ const CustomButton = ({
         alignItems: 'center',
         justifyContent: 'center',
       }}
+      disabled={disabled}
       onPress={onPress}>
-      <Text style={{fontSize, color: '#fff'}}>{title}</Text>
+      <Text style={{fontSize, color: '#fff', opacity: disabled ? 0.6 : 1}}>
+        {title}
+      </Text>
     </TouchableOpacity>
   );
 };

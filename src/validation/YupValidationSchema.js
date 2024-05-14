@@ -52,10 +52,12 @@ export const vaultSchema = Yup.object({
 
 export const accountUpdateSchema = Yup.object({
   fullName: Yup.string().required('Full Name is required'),
-  phoneNo: Yup.string().matches(
-    /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/,
-    'Enter a valid phone number',
-  ),
+  phoneNo: Yup.string()
+    .matches(
+      /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/,
+      'Enter a valid phone number',
+    )
+    .nullable(true),
   gender: Yup.string()
     .oneOf(
       ['Male', 'Female', 'Others'],
