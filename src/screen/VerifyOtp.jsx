@@ -61,7 +61,7 @@ const VerifyOtp = ({navigation, route}) => {
     try {
       const res = await axiosInstance.post('/user/resend-otp', {
         email: route?.params?.email,
-        type: 'resend-otp',
+        type: route?.params?.type,
       });
       Toast.show({type: 'success', text1: res.data.message});
     } catch (err) {
