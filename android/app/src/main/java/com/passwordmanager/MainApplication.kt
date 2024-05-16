@@ -1,4 +1,4 @@
-package com.passwordmanager
+package com.guardvault
 
 import android.app.Application
 import com.facebook.react.PackageList
