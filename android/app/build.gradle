@@ -112,7 +112,8 @@ dependencies {
     // For animated GIF support
     implementation ("com.facebook.fresco:animated-gif:3.1.0")
 
-    // compile project(':react-native-aes-crypto')
+    // for splash screen
+    implementation project(':react-native-splash-screen')
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {StatusBar} from 'react-native';
 import Toast, {BaseToast, ErrorToast} from 'react-native-toast-message';
+import SplashScreen from 'react-native-splash-screen';
 
 // components
 import DataContextProvider from './src/context/DataContext';
@@ -34,6 +35,9 @@ const toastConfig = {
 };
 
 const App = () => {
+  useEffect(() => {
+    SplashScreen.hide();
+  }, []);
   return (
     <>
       <StatusBar />
