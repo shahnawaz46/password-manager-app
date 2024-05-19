@@ -12,6 +12,8 @@ import CustomButton from '../components/CustomButton';
 import {useAppTheme} from '../routes/Router';
 import axiosInstance from '../axios/AxiosInstance';
 import {forgotPasswordSchema} from '../validation/YupValidationSchema';
+import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
+import {API_STATUS} from '../utils/Constants';
 
 const UpdatePassword = ({navigation, route}) => {
   const {
@@ -20,19 +22,22 @@ const UpdatePassword = ({navigation, route}) => {
 
   // for show/hide password by click on icon
   const [secureField, setSecureField] = useState(true);
+  const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
 
   const handleUpdatePassword = async values => {
     try {
+      setApiLoading(API_STATUS.LOADING);
       const res = await axiosInstance.post('/user/update-password', {
         ...values,
         email: route?.params?.email,
       });
       Toast.show({type: 'success', text1: res.data.message});
-
+      setApiLoading(API_STATUS.SUCCESS);
       setTimeout(() => {
         navigation.navigate('Signin');
       }, 500);
     } catch (err) {
+      setApiLoading(API_STATUS.FAILED);
       Toast.show({
         type: 'error',
         text1: err?.response?.data?.error || err.message,
@@ -43,6 +48,9 @@ const UpdatePassword = ({navigation, route}) => {
 
   return (
     <SafeAreaView style={{flex: 1}}>
+      {/* for show loading screen after reset password */}
+      <LoadingAfterUpdate apiLoading={apiLoading} />
+
       <View style={{alignItems: 'center', marginTop: 30}}>
         <TouchableOpacity
           style={{...styles.verifyOtpIcon, backgroundColor: primary}}

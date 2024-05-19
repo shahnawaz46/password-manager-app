@@ -3,7 +3,12 @@ import {Image, View} from 'react-native';
 
 const Loading = () => {
   return (
-    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+    <View
+      style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
       <Image
         source={require('../assets/loading.gif')}
         style={{

@@ -12,6 +12,8 @@ import CustomButton from '../components/CustomButton';
 import {useAppTheme} from '../routes/Router';
 import {useDataContext} from '../context/DataContext';
 import axiosInstance from '../axios/AxiosInstance';
+import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
+import {API_STATUS} from '../utils/Constants';
 
 const VerifyOtp = ({navigation, route}) => {
   const {
@@ -21,6 +23,7 @@ const VerifyOtp = ({navigation, route}) => {
   const {setAuthDetails} = useDataContext();
 
   const [otp, setOTP] = useState(null);
+  const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
 
   const handleVerifyOTP = async () => {
     if (otp === '' || otp === null) {
@@ -31,6 +34,7 @@ const VerifyOtp = ({navigation, route}) => {
       });
     }
     try {
+      setApiLoading(API_STATUS.LOADING);
       const res = await axiosInstance.post('/user/otp-verify', {
         otp,
         email: route?.params?.email,
@@ -49,6 +53,7 @@ const VerifyOtp = ({navigation, route}) => {
         navigation.navigate('Update Password', {email: res.data?.email});
       }
     } catch (err) {
+      setApiLoading(API_STATUS.FAILED);
       Toast.show({
         type: 'error',
         text1: err?.response?.data?.error || err.message,
@@ -59,12 +64,15 @@ const VerifyOtp = ({navigation, route}) => {
 
   const resendOtp = async () => {
     try {
+      setApiLoading(API_STATUS.LOADING);
       const res = await axiosInstance.post('/user/resend-otp', {
         email: route?.params?.email,
         type: route?.params?.type,
       });
       Toast.show({type: 'success', text1: res.data.message});
+      setApiLoading(API_STATUS.SUCCESS);
     } catch (err) {
+      setApiLoading(API_STATUS.FAILED);
       Toast.show({
         type: 'error',
         text1: err?.response?.data?.error || err.message,
@@ -84,6 +92,9 @@ const VerifyOtp = ({navigation, route}) => {
 
   return (
     <SafeAreaView style={{flex: 1}}>
+      {/* for show loading screen after verifyotp/resend otp */}
+      <LoadingAfterUpdate apiLoading={apiLoading} />
+
       <View style={{alignItems: 'center', marginTop: 30}}>
         <TouchableOpacity
           style={{...styles.verifyOtpIcon, backgroundColor: primary}}

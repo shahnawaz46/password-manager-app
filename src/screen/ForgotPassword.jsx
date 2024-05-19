@@ -10,6 +10,8 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import {useAppTheme} from '../routes/Router';
 import axiosInstance from '../axios/AxiosInstance';
+import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
+import {API_STATUS} from '../utils/Constants';
 
 const ForgotPassword = ({navigation}) => {
   const {
@@ -17,6 +19,7 @@ const ForgotPassword = ({navigation}) => {
   } = useAppTheme();
 
   const [email, setEmail] = useState(null);
+  const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
 
   const handleVerifyEmail = async () => {
     if (email === '' || email === null) {
@@ -28,15 +31,18 @@ const ForgotPassword = ({navigation}) => {
     }
 
     try {
+      setApiLoading(API_STATUS.LOADING);
       const res = await axiosInstance.post('/user/resend-otp', {
         email,
         type: 'forgot-password',
       });
       Toast.show({type: 'success', text1: res.data.message});
+      setApiLoading(API_STATUS.SUCCESS);
       setTimeout(() => {
         navigation.navigate('Verify OTP', {email, type: 'forgot-password'});
       }, 500);
     } catch (err) {
+      setApiLoading(API_STATUS.FAILED);
       Toast.show({
         type: 'error',
         text1: err?.response?.data?.error || err.message,
@@ -47,6 +53,9 @@ const ForgotPassword = ({navigation}) => {
 
   return (
     <SafeAreaView style={{flex: 1}}>
+      {/* for show loading screen after submit email */}
+      <LoadingAfterUpdate apiLoading={apiLoading} />
+
       <View style={{alignItems: 'center', marginTop: 30}}>
         <TouchableOpacity
           style={{...styles.verifyOtpIcon, backgroundColor: primary}}

@@ -14,6 +14,8 @@ import CustomInput2 from '../components/CustomInput2';
 import CustomButton from '../components/CustomButton';
 import axiosInstance from '../axios/AxiosInstance';
 import {accountUpdateSchema} from '../validation/YupValidationSchema';
+import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
+import {API_STATUS} from '../utils/Constants';
 
 const data = [
   {label: 'Male', value: 'Male'},
@@ -30,6 +32,7 @@ const AccountDetails = ({navigation}) => {
 
   const [accountDetails, setAccountDetails] = useState({});
   const [profileImage, setProfileImage] = useState({});
+  const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
 
   const uploadImage = async setFieldValue => {
     try {
@@ -71,19 +74,21 @@ const AccountDetails = ({navigation}) => {
     });
 
     try {
+      setApiLoading(API_STATUS.LOADING);
       const res = await axiosInstance.patch('/user/update-profile', formData, {
         headers: {
           'Content-Type': 'multipart/form-data', // Required for FormData uploads
         },
       });
       setAuthDetails({isLoggedIn: true, userDetails: res.data});
+      setApiLoading(API_STATUS.SUCCESS);
       Toast.show({
         type: 'success',
         text1: 'Account Updated Successfully',
         topOffset: 25,
       });
     } catch (err) {
-      console.log(err);
+      setApiLoading(API_STATUS.FAILED);
       Toast.show({
         type: 'error',
         text1: err?.response?.data?.error || err?.message,
@@ -98,6 +103,9 @@ const AccountDetails = ({navigation}) => {
 
   return (
     <View style={{flex: 1, padding: gap}}>
+      {/* for show loading screen after update the acount details */}
+      <LoadingAfterUpdate apiLoading={apiLoading} />
+
       {/* top container with name and back icon */}
       <View style={styles.topContainer}>
         <TouchableOpacity

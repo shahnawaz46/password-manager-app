@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -21,6 +21,8 @@ import Title from '../components/Title';
 import {useDataContext} from '../context/DataContext';
 import axiosInstance from '../axios/AxiosInstance';
 import {singinSchema} from '../validation/YupValidationSchema';
+import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
+import {API_STATUS} from '../utils/Constants';
 
 const Signin = ({navigation}) => {
   const {
@@ -28,9 +30,11 @@ const Signin = ({navigation}) => {
   } = useAppTheme();
 
   const {setAuthDetails} = useDataContext();
+  const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
 
   const handleSignin = async value => {
     try {
+      setApiLoading(API_STATUS.LOADING);
       const res = await axiosInstance.post('/user/login', value);
 
       // using Keychain instead of asyncLocalStorage because Keychain is secure
@@ -45,6 +49,7 @@ const Signin = ({navigation}) => {
         },
       }));
     } catch (err) {
+      setApiLoading(API_STATUS.FAILED);
       Toast.show({
         type: 'error',
         text1: err?.response?.data?.error || err.message,
@@ -61,6 +66,9 @@ const Signin = ({navigation}) => {
     <ScrollView
       contentContainerStyle={{flexGrow: 1}}
       keyboardShouldPersistTaps={'always'}>
+      {/* for show loading screen after Signin */}
+      <LoadingAfterUpdate apiLoading={apiLoading} />
+
       <SafeAreaView style={{flex: 1}}>
         <Title
           style={{

@@ -19,6 +19,8 @@ import {useAppTheme} from '../routes/Router';
 import Title from '../components/Title';
 import axiosInstance from '../axios/AxiosInstance';
 import {singupSchema} from '../validation/YupValidationSchema';
+import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
+import {API_STATUS} from '../utils/Constants';
 
 const Signup = ({navigation}) => {
   const {
@@ -27,12 +29,15 @@ const Signup = ({navigation}) => {
 
   // for show/hide password by click on icon
   const [secureField, setSecureField] = useState(true);
+  const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
 
   const handleSignup = async value => {
     try {
+      setApiLoading(API_STATUS.LOADING);
       await axiosInstance.post('/user/register', value);
       navigation.navigate('Verify OTP', {email: value.email, type: 'signup'});
     } catch (err) {
+      setApiLoading(API_STATUS.FAILED);
       Toast.show({
         type: 'error',
         text1: err?.response?.data?.error || err.message,
@@ -45,6 +50,9 @@ const Signup = ({navigation}) => {
     <ScrollView
       contentContainerStyle={{flexGrow: 1}}
       keyboardShouldPersistTaps={'always'}>
+      {/* for show loading screen after Signup */}
+      <LoadingAfterUpdate apiLoading={apiLoading} />
+
       <SafeAreaView style={{flex: 1}}>
         <Title
           style={{

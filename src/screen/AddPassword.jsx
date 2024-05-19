@@ -16,6 +16,8 @@ import {vaultSchema} from '../validation/YupValidationSchema';
 import axiosInstance from '../axios/AxiosInstance';
 import {useDataContext} from '../context/DataContext';
 import {encrypt} from '../utils/EncDec';
+import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
+import {API_STATUS} from '../utils/Constants';
 
 const AddPassword = ({route}) => {
   const {passwordList, setPasswordList} = useDataContext();
@@ -26,8 +28,11 @@ const AddPassword = ({route}) => {
     category: '',
   });
   const idRef = useRef(null);
+  const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
 
-  const handlePassword = async values => {
+  const handlePassword = async (values, resetFormCB) => {
+    setApiLoading(API_STATUS.LOADING);
+
     // encrypting userName and password of vault
     const encrypted = await encrypt({
       userName: values.userName,
@@ -58,8 +63,14 @@ const AddPassword = ({route}) => {
           [category]: (prev.count[category] += 1),
         },
       }));
+
+      // calling resetForm callback function after data updated on server and state
+      resetFormCB();
+
+      setApiLoading(API_STATUS.SUCCESS);
       Toast.show({type: 'success', text1: 'Successfully Added', topOffset: 25});
     } catch (err) {
+      setApiLoading(API_STATUS.FAILED);
       Toast.show({
         type: 'error',
         text1: err?.response?.data?.error || err?.message,
@@ -78,6 +89,7 @@ const AddPassword = ({route}) => {
     });
 
     if (Object.keys(updatedValues).length === 0) return null;
+    setApiLoading(API_STATUS.LOADING);
 
     //  here after editing any field I am encrypting the username and password again
     const encrypted = await encrypt({
@@ -144,12 +156,25 @@ const AddPassword = ({route}) => {
 
       setPasswordList(prev => ({...prev, all, ...updated}));
 
+      // here i am not calling resetForm callback function like i am doing inside handlePassword
+      // because in the case of edit password/vault i am updating initialState value inside useEffect
+      // so resetForm function will make no effect because initial value is filled not empty like in handlePassword
+      // thats why here i am calling setInitialState after data updated on server and state
+      setInitialState({
+        category: '',
+        name: '',
+        password: '',
+        userName: '',
+      });
+
+      setApiLoading(API_STATUS.SUCCESS);
       Toast.show({
         type: 'success',
         text1: 'Successfully Updated',
         topOffset: 25,
       });
     } catch (err) {
+      setApiLoading(API_STATUS.FAILED);
       Toast.show({
         type: 'error',
         text1: err?.response?.data?.error || err?.message,
@@ -158,6 +183,8 @@ const AddPassword = ({route}) => {
     }
   };
 
+  // if route have params that means user is editing the vault
+  // so i have updating the initialState with value that i am getting from route.param
   useEffect(() => {
     if (route?.params) {
       const {_id, ...rest} = route.params;
@@ -170,6 +197,9 @@ const AddPassword = ({route}) => {
     <ScrollView
       contentContainerStyle={{flexGrow: 1}}
       keyboardShouldPersistTaps={'always'}>
+      {/* for show loading screen after add new password/details */}
+      <LoadingAfterUpdate apiLoading={apiLoading} />
+
       <SafeAreaView style={{flex: 1}}>
         <View style={styles.formContainer}>
           <Text style={styles.formHeading}>Add New Password</Text>
@@ -180,17 +210,10 @@ const AddPassword = ({route}) => {
             validationSchema={vaultSchema}
             onSubmit={(values, {resetForm}) => {
               if (idRef.current) {
-                handlePasswordEdit(values);
-                setInitialState({
-                  name: '',
-                  password: '',
-                  userName: '',
-                  category: '',
-                });
+                handlePasswordEdit(values, resetForm);
               } else {
-                handlePassword(values);
+                handlePassword(values, resetForm);
               }
-              resetForm(initialState);
             }}>
             {({
               values,
