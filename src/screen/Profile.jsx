@@ -87,8 +87,8 @@ const Profile = ({navigation}) => {
         />
 
         {/* <ProfileItem
-          title={'Change Password'}
-          subTitle={'Update your password for better security'}
+          title={'Add Fingerprint'}
+          subTitle={'Add Finger print for make it more secure'}
           icon={
             <MaterialCommunityIcons
               name="lock-outline"

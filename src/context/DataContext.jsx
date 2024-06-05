@@ -3,6 +3,9 @@ import axiosInstance from '../axios/AxiosInstance';
 import * as Keychain from 'react-native-keychain';
 import Toast from 'react-native-toast-message';
 
+// components
+import {gettingData} from '../utils/EncDec';
+
 const DataContext = createContext();
 
 const passwordListInitialState = {
@@ -25,25 +28,28 @@ const DataContextProvider = ({children}) => {
     try {
       if (type === 'All') {
         const res = await axiosInstance.get('/password?category=All');
+        const decryptedData = await gettingData(res.data.password);
         setPasswordList(prev => ({
           ...prev,
-          all: {...prev.all, status: 'success', data: res.data.password},
+          all: {...prev.all, status: 'success', data: decryptedData},
           count: res.data.count,
         }));
       } else if (type === 'App') {
         const res = await axiosInstance.get('/password?category=App');
+        const decryptedData = await gettingData(res.data.password);
         setPasswordList(prev => ({
           ...prev,
-          app: {...prev.app, status: 'success', data: res.data.password},
+          app: {...prev.app, status: 'success', data: decryptedData},
         }));
       } else if (type === 'Browser') {
         const res = await axiosInstance.get('/password?category=Browser');
+        const decryptedData = await gettingData(res.data.password);
         setPasswordList(prev => ({
           ...prev,
           browser: {
             ...prev.browser,
             status: 'success',
-            data: res.data.password,
+            data: decryptedData,
           },
         }));
       }

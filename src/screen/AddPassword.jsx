@@ -48,14 +48,15 @@ const AddPassword = ({route}) => {
     try {
       const res = await axiosInstance.post('/password', newvalues);
       const category = res.data.category.toLowerCase();
+      const {_id} = res.data;
 
       // after password added to the database then updating the state
       setPasswordList(prev => ({
         ...prev,
-        all: {...prev.all, data: [res.data, ...prev.all.data]},
+        all: {...prev.all, data: [{_id, ...values}, ...prev.all.data]},
         [category]: {
           ...prev[category],
-          data: [res.data, ...prev[category].data],
+          data: [{_id, ...values}, ...prev[category].data],
         },
         count: {
           ...prev.count,
@@ -91,7 +92,7 @@ const AddPassword = ({route}) => {
     if (Object.keys(updatedValues).length === 0) return null;
     setApiLoading(API_STATUS.LOADING);
 
-    //  here after editing any field I am encrypting the username and password again
+    //  after editing any field I am again encrypting the username and password
     const encrypted = await encrypt({
       userName: values.userName,
       password: values.password,
@@ -112,6 +113,7 @@ const AddPassword = ({route}) => {
         ...newvalues,
       });
 
+      const {_id} = res.data;
       const oldCategory = initialState.category.toLowerCase();
       const updatedCategory = res.data.category.toLowerCase();
 
@@ -119,7 +121,7 @@ const AddPassword = ({route}) => {
       const all = {
         ...passwordList.all,
         data: passwordList.all.data.map(item =>
-          item._id === idRef.current ? res.data : item,
+          item._id === idRef.current ? {_id, ...values} : item,
         ),
       };
 
@@ -135,7 +137,7 @@ const AddPassword = ({route}) => {
           },
           [updatedCategory]: {
             ...passwordList[updatedCategory],
-            data: [res.data, ...passwordList[updatedCategory].data],
+            data: [{_id, ...values}, ...passwordList[updatedCategory].data],
           },
           count: {
             ...passwordList.count,
@@ -148,7 +150,7 @@ const AddPassword = ({route}) => {
           [oldCategory]: {
             ...passwordList[oldCategory],
             data: passwordList[oldCategory].data.map(item =>
-              item._id === idRef.current ? res.data : item,
+              item._id === idRef.current ? {_id, ...values} : item,
             ),
           },
         };
@@ -210,7 +212,7 @@ const AddPassword = ({route}) => {
             validationSchema={vaultSchema}
             onSubmit={(values, {resetForm}) => {
               if (idRef.current) {
-                handlePasswordEdit(values, resetForm);
+                handlePasswordEdit(values);
               } else {
                 handlePassword(values, resetForm);
               }
@@ -255,17 +257,17 @@ const AddPassword = ({route}) => {
                     }}>
                     <CustomInput
                       value={values.password}
-                      placeholder={'Enter/Generate Password'}
+                      placeholder={'Enter Password'}
                       onChangeText={handleChange('password')}
-                      width="70%"
+                      width="100%"
                     />
 
-                    <CustomButton
+                    {/* <CustomButton
                       title={'Generate'}
                       height={44}
                       fontSize={16}
                       onPress={() => setFieldValue('password', nanoid())}
-                    />
+                    /> */}
                   </View>
 
                   {touched.password && errors.password && (

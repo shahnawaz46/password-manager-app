@@ -14,11 +14,11 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useAppTheme} from '../routes/Router';
 import AllPasswords from '../components/AllPasswords';
 import {gap} from '../utils/Spacing';
-import {tempPassword, useDataContext} from '../context/DataContext';
+import {useDataContext} from '../context/DataContext';
 import Title from '../components/Title';
 import Loading from '../components/Loading';
 import axiosInstance from '../axios/AxiosInstance';
-import {decrypt} from '../utils/EncDec';
+import {gettingData} from '../utils/EncDec';
 
 const Home = ({navigation}) => {
   const {
@@ -29,9 +29,12 @@ const Home = ({navigation}) => {
   const {passwordList, authDetails, fetchPassword} = useDataContext();
 
   // state for store password that i am getting from passwordList(context)
-  const [passwords, setPasswords] = useState([]);
+  const [searchPasswords, setSearchPasswords] = useState({
+    status: 'idle',
+    searching: false,
+    data: [],
+  });
   const [category, setCategory] = useState('All');
-  const [status, setStatus] = useState('idle');
 
   // custom debouce for delay function invocation
   const customDebouce = (cb, timeout) => {
@@ -52,73 +55,48 @@ const Home = ({navigation}) => {
     const query = e[0];
 
     if (!query) {
-      const newPasswordData = await gettingData(
-        passwordList[category.toLocaleLowerCase()].data,
-      );
-      setPasswords(newPasswordData);
+      setSearchPasswords({status: 'idle', searching: false, data: []});
       return;
     }
 
-    setStatus('loading');
+    setSearchPasswords(prev => ({...prev, searching: true, status: 'loading'}));
 
     const res = await axiosInstance.get(
       `/password/search?category=${category}&search=${query}`,
     );
-    const newPasswordData = await gettingData(res.data);
-    setPasswords(newPasswordData);
 
-    setStatus('success');
+    const newPasswordData = await gettingData(res.data);
+    setSearchPasswords(prev => ({
+      ...prev,
+      status: 'success',
+      data: newPasswordData,
+    }));
   }, 600);
 
   // filter category
   const filterCategory = value => {
+    setSearchPasswords({status: 'idle', searching: false, data: []});
+
     if (category === value) return;
-
-    setStatus('loading');
     setCategory(value);
-  };
-
-  // function for getting all the vault by decrypt
-  const gettingData = async data => {
-    const password = [];
-    for (const item of data) {
-      const {data, ...rest} = item;
-      const result = await decrypt(data);
-      result
-        ? password.push({...rest, ...JSON.parse(result)})
-        : password.push({...rest});
-    }
-
-    return password;
   };
 
   useEffect(() => {
     // Immediately Invoked Function Expressions (IIFEs):
     (async function () {
-      if (category === 'All') {
-        passwordList.all.status === 'loading' && fetchPassword('All');
-        if (passwordList.all.status === 'success') {
-          const newPasswordData = await gettingData(passwordList.all.data);
-          setPasswords(newPasswordData);
-          setStatus('success');
-        }
-      } else if (category === 'App') {
-        passwordList.app.status === 'loading' && fetchPassword('App');
-        if (passwordList.app.status === 'success') {
-          const newPasswordData = await gettingData(passwordList.app.data);
-          setPasswords(newPasswordData);
-          setStatus('success');
-        }
-      } else if (category === 'Browser') {
-        passwordList.browser.status === 'loading' && fetchPassword('Browser');
-        if (passwordList.browser.status === 'success') {
-          const newPasswordData = await gettingData(passwordList.browser.data);
-          setPasswords(newPasswordData);
-          setStatus('success');
-        }
-      }
+      category === 'All' &&
+        passwordList.all.status === 'loading' &&
+        fetchPassword('All');
+
+      category === 'App' &&
+        passwordList.app.status === 'loading' &&
+        fetchPassword('App');
+
+      category === 'Browser' &&
+        passwordList.browser.status === 'loading' &&
+        fetchPassword('Browser');
     })();
-  }, [passwordList, category]);
+  }, [category]);
 
   if (passwordList.all.status === 'loading') {
     return <Loading />;
@@ -219,8 +197,16 @@ const Home = ({navigation}) => {
 
       {/* list of all passwords */}
       <AllPasswords
-        password={passwords}
-        status={status}
+        password={
+          searchPasswords.searching
+            ? searchPasswords.data
+            : passwordList[category.toLowerCase()].data
+        }
+        status={
+          searchPasswords.searching
+            ? searchPasswords.status
+            : passwordList[category.toLowerCase()].status
+        }
         category={category}
         filterCategory={filterCategory}
       />

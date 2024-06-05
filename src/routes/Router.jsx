@@ -30,6 +30,7 @@ const Router = () => {
   const {
     authDetails: {isLoggedIn},
     setAuthDetails,
+    fetchPassword,
   } = useDataContext();
 
   const [loading, setLoading] = useState(true);
@@ -38,7 +39,10 @@ const Router = () => {
     try {
       const isToken = await Keychain.getGenericPassword();
       if (isToken?.password) {
-        const res = await axiosInstance.get('/user/profile');
+        const [res, _] = await Promise.all([
+          axiosInstance.get('/user/profile'),
+          fetchPassword('All'),
+        ]);
 
         setAuthDetails({isLoggedIn: true, userDetails: res.data});
       }
