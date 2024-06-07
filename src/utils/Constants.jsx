@@ -4,3 +4,9 @@ export const API_STATUS = {
   SUCCESS: 'SUCCESS',
   FAILED: 'FAILED',
 };
+
+export const LOGIN_PROCESS = {
+  IDLE: 'IDLE',
+  START: 'START',
+  COMPLETE: 'COMPLETE',
+};

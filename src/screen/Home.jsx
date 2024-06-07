@@ -16,66 +16,25 @@ import AllPasswords from '../components/AllPasswords';
 import {gap} from '../utils/Spacing';
 import {useDataContext} from '../context/DataContext';
 import Title from '../components/Title';
-import Loading from '../components/Loading';
-import axiosInstance from '../axios/AxiosInstance';
-import {gettingData} from '../utils/EncDec';
+import {API_STATUS} from '../utils/Constants';
+import {useSearchContext} from '../context/SearchContext';
 
 const Home = ({navigation}) => {
   const {
     colors: {primary, textPrimary},
   } = useAppTheme();
 
-  // context where passwords are stored
+  // data context where passwords are stored
   const {passwordList, authDetails, fetchPassword} = useDataContext();
 
-  // state for store password that i am getting from passwordList(context)
-  const [searchPasswords, setSearchPasswords] = useState({
-    status: 'idle',
-    searching: false,
-    data: [],
-  });
+  // search context for search/delete/edit search results
+  const {searchPasswords, setSearchPasswords, onSearch} = useSearchContext();
+
   const [category, setCategory] = useState('All');
-
-  // custom debouce for delay function invocation
-  const customDebouce = (cb, timeout) => {
-    let timer;
-
-    return (...args) => {
-      if (timer) {
-        clearTimeout(timer);
-      }
-      timer = setTimeout(() => {
-        cb(args);
-      }, timeout);
-    };
-  };
-
-  // here i am calling customDebouce function and passing callBack function(where logic is written for search) and timeout(for delay)
-  const onSearch = customDebouce(async e => {
-    const query = e[0];
-
-    if (!query) {
-      setSearchPasswords({status: 'idle', searching: false, data: []});
-      return;
-    }
-
-    setSearchPasswords(prev => ({...prev, searching: true, status: 'loading'}));
-
-    const res = await axiosInstance.get(
-      `/password/search?category=${category}&search=${query}`,
-    );
-
-    const newPasswordData = await gettingData(res.data);
-    setSearchPasswords(prev => ({
-      ...prev,
-      status: 'success',
-      data: newPasswordData,
-    }));
-  }, 600);
 
   // filter category
   const filterCategory = value => {
-    setSearchPasswords({status: 'idle', searching: false, data: []});
+    setSearchPasswords({status: API_STATUS.IDLE, searching: false, data: []});
 
     if (category === value) return;
     setCategory(value);
@@ -85,22 +44,18 @@ const Home = ({navigation}) => {
     // Immediately Invoked Function Expressions (IIFEs):
     (async function () {
       category === 'All' &&
-        passwordList.all.status === 'loading' &&
+        passwordList.all.status === API_STATUS.LOADING &&
         fetchPassword('All');
 
       category === 'App' &&
-        passwordList.app.status === 'loading' &&
+        passwordList.app.status === API_STATUS.LOADING &&
         fetchPassword('App');
 
       category === 'Browser' &&
-        passwordList.browser.status === 'loading' &&
+        passwordList.browser.status === API_STATUS.LOADING &&
         fetchPassword('Browser');
     })();
   }, [category]);
-
-  if (passwordList.all.status === 'loading') {
-    return <Loading />;
-  }
 
   return (
     <View style={styles.homeContainer}>
@@ -147,7 +102,7 @@ const Home = ({navigation}) => {
             fontSize: 16,
             width: '100%',
           }}
-          onChangeText={onSearch}
+          onChangeText={e => onSearch(e, category)}
         />
       </View>
 
@@ -209,6 +164,7 @@ const Home = ({navigation}) => {
         }
         category={category}
         filterCategory={filterCategory}
+        isShowingSearchResult={searchPasswords.searching}
       />
     </View>
   );

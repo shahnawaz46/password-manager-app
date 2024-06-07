@@ -9,6 +9,7 @@ import AppStack from './AppStack';
 import AuthStack from './AuthStack';
 import Loading from '../components/Loading';
 import axiosInstance from '../axios/AxiosInstance';
+import {LOGIN_PROCESS} from '../utils/Constants';
 
 const theme = {
   ...DefaultTheme,
@@ -30,7 +31,7 @@ const Router = () => {
   const {
     authDetails: {isLoggedIn},
     setAuthDetails,
-    fetchPassword,
+    setPasswordList,
   } = useDataContext();
 
   const [loading, setLoading] = useState(true);
@@ -39,12 +40,20 @@ const Router = () => {
     try {
       const isToken = await Keychain.getGenericPassword();
       if (isToken?.password) {
-        const [res, _] = await Promise.all([
+        const [profileRes, countRes] = await Promise.all([
           axiosInstance.get('/user/profile'),
-          fetchPassword('All'),
+          axiosInstance.get('/count'),
         ]);
 
-        setAuthDetails({isLoggedIn: true, userDetails: res.data});
+        setAuthDetails({
+          isLoggedIn: LOGIN_PROCESS.COMPLETE,
+          userDetails: profileRes.data,
+        });
+
+        setPasswordList(prev => ({
+          ...prev,
+          count: countRes.data,
+        }));
       }
     } catch (err) {
       console.log(err?.response?.data?.error || err?.message);
@@ -54,14 +63,17 @@ const Router = () => {
   };
 
   useEffect(() => {
-    getUserDetails();
-  }, []);
+    // if isLoggedin value is 'COMPLETE' then it means i have already fetched the data so i am not calling getUserDetails() function again.
+    isLoggedIn !== LOGIN_PROCESS.COMPLETE && getUserDetails();
+  }, [isLoggedIn]);
 
   if (loading) return <Loading />;
 
   return (
     <NavigationContainer theme={theme}>
-      <MenuProvider>{isLoggedIn ? <AppStack /> : <AuthStack />}</MenuProvider>
+      <MenuProvider>
+        {isLoggedIn === LOGIN_PROCESS.COMPLETE ? <AppStack /> : <AuthStack />}
+      </MenuProvider>
     </NavigationContainer>
   );
 };

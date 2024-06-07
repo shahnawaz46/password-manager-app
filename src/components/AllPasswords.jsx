@@ -28,13 +28,25 @@ import axiosInstance from '../axios/AxiosInstance';
 import {useDataContext} from '../context/DataContext';
 import {API_STATUS} from '../utils/Constants';
 import LoadingAfterUpdate from './LoadingAfterUpdate';
+import {useSearchContext} from '../context/SearchContext';
 
-const AllPasswords = ({password, status, category, filterCategory}) => {
+const AllPasswords = ({
+  password,
+  status,
+  category,
+  filterCategory,
+  isShowingSearchResult,
+}) => {
   const {
     colors: {textPrimary},
   } = useAppTheme();
 
+  // data context where passwords are stored
   const {setPasswordList} = useDataContext();
+
+  // search context for search/delete/edit search results
+  const {deleteSearchResult} = useSearchContext();
+
   const navigation = useNavigation();
   const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
 
@@ -68,6 +80,12 @@ const AllPasswords = ({password, status, category, filterCategory}) => {
           [category]: (prev.count[category] -= 1),
         },
       }));
+
+      // if user search any vault/password and then delete search result then i also have to edit data from search result state
+      if (isShowingSearchResult) {
+        deleteSearchResult(id);
+      }
+
       setApiLoading(API_STATUS.SUCCESS);
       Toast.show({type: 'success', text1: res.data.msg, topOffset: 25});
     } catch (err) {
@@ -80,7 +98,9 @@ const AllPasswords = ({password, status, category, filterCategory}) => {
     }
   };
 
-  const editVault = item => navigation.navigate('Add Password', item);
+  const editVault = item => {
+    navigation.navigate('Add Password', item);
+  };
 
   return (
     <>
@@ -108,7 +128,7 @@ const AllPasswords = ({password, status, category, filterCategory}) => {
         </View>
 
         {/* list of passwords */}
-        {status === 'loading' ? (
+        {status === API_STATUS.LOADING ? (
           <Loading />
         ) : password?.length > 0 ? (
           <View style={{flex: 1, flexGrow: 1}}>

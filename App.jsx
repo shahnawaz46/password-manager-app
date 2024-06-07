@@ -6,6 +6,7 @@ import SplashScreen from 'react-native-splash-screen';
 // components
 import DataContextProvider from './src/context/DataContext';
 import Router from './src/routes/Router';
+import SearchContextProvider from './src/context/SearchContext';
 
 const toastConfig = {
   success: props => (
@@ -42,7 +43,9 @@ const App = () => {
     <>
       <StatusBar />
       <DataContextProvider>
-        <Router />
+        <SearchContextProvider>
+          <Router />
+        </SearchContextProvider>
       </DataContextProvider>
       <Toast config={toastConfig} />
     </>

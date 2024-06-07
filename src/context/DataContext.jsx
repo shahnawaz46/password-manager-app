@@ -1,22 +1,23 @@
 import React, {createContext, useContext, useState} from 'react';
-import axiosInstance from '../axios/AxiosInstance';
 import * as Keychain from 'react-native-keychain';
 import Toast from 'react-native-toast-message';
 
 // components
+import axiosInstance from '../axios/AxiosInstance';
 import {gettingData} from '../utils/EncDec';
+import {API_STATUS, LOGIN_PROCESS} from '../utils/Constants';
 
 const DataContext = createContext();
 
 const passwordListInitialState = {
-  all: {status: 'loading', data: [], error: null},
-  app: {status: 'loading', data: [], error: null},
-  browser: {status: 'loading', data: [], error: null},
+  all: {status: API_STATUS.LOADING, data: [], error: null},
+  app: {status: API_STATUS.LOADING, data: [], error: null},
+  browser: {status: API_STATUS.LOADING, data: [], error: null},
   count: {all: 0, app: 0, browser: 0},
 };
 
 const authDetailsInitialState = {
-  isLoggedIn: false,
+  isLoggedIn: LOGIN_PROCESS.IDLE,
   userDetails: {},
 };
 
@@ -31,15 +32,14 @@ const DataContextProvider = ({children}) => {
         const decryptedData = await gettingData(res.data.password);
         setPasswordList(prev => ({
           ...prev,
-          all: {...prev.all, status: 'success', data: decryptedData},
-          count: res.data.count,
+          all: {...prev.all, status: API_STATUS.SUCCESS, data: decryptedData},
         }));
       } else if (type === 'App') {
         const res = await axiosInstance.get('/password?category=App');
         const decryptedData = await gettingData(res.data.password);
         setPasswordList(prev => ({
           ...prev,
-          app: {...prev.app, status: 'success', data: decryptedData},
+          app: {...prev.app, status: API_STATUS.SUCCESS, data: decryptedData},
         }));
       } else if (type === 'Browser') {
         const res = await axiosInstance.get('/password?category=Browser');
@@ -48,7 +48,7 @@ const DataContextProvider = ({children}) => {
           ...prev,
           browser: {
             ...prev.browser,
-            status: 'success',
+            status: API_STATUS.SUCCESS,
             data: decryptedData,
           },
         }));

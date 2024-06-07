@@ -18,9 +18,18 @@ import {useDataContext} from '../context/DataContext';
 import {encrypt} from '../utils/EncDec';
 import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
 import {API_STATUS} from '../utils/Constants';
+import {useSearchContext} from '../context/SearchContext';
 
 const AddPassword = ({route}) => {
+  // data context where passwords are stored
   const {passwordList, setPasswordList} = useDataContext();
+
+  // search context for search/delete/edit search results
+  const {
+    searchPasswords: {searching},
+    editSearchResult,
+  } = useSearchContext();
+
   const [initialState, setInitialState] = useState({
     name: '',
     userName: '',
@@ -157,6 +166,11 @@ const AddPassword = ({route}) => {
       }
 
       setPasswordList(prev => ({...prev, all, ...updated}));
+
+      // if user search any vault/password and then edit search result then i also have to edit data from search result state
+      if (searching) {
+        editSearchResult({_id, ...values});
+      }
 
       // here i am not calling resetForm callback function like i am doing inside handlePassword
       // because in the case of edit password/vault i am updating initialState value inside useEffect

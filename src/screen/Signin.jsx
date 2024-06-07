@@ -22,7 +22,7 @@ import {useDataContext} from '../context/DataContext';
 import axiosInstance from '../axios/AxiosInstance';
 import {singinSchema} from '../validation/YupValidationSchema';
 import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
-import {API_STATUS} from '../utils/Constants';
+import {API_STATUS, LOGIN_PROCESS} from '../utils/Constants';
 
 const Signin = ({navigation}) => {
   const {
@@ -39,15 +39,9 @@ const Signin = ({navigation}) => {
 
       // using Keychain instead of asyncLocalStorage because Keychain is secure
       // and Keychain store username and password so here username will be id and password will be token
-      const {token, _id: id, ...rest} = res.data;
+      const {token, _id: id} = res.data;
       await Keychain.setGenericPassword(id, token);
-      setAuthDetails(prev => ({
-        ...prev,
-        isLoggedIn: true,
-        userDetails: {
-          ...rest,
-        },
-      }));
+      setAuthDetails(prev => ({...prev, isLoggedIn: LOGIN_PROCESS.START}));
     } catch (err) {
       setApiLoading(API_STATUS.FAILED);
       Toast.show({
@@ -67,7 +61,7 @@ const Signin = ({navigation}) => {
       contentContainerStyle={{flexGrow: 1}}
       keyboardShouldPersistTaps={'always'}>
       {/* for show loading screen after Signin */}
-      <LoadingAfterUpdate apiLoading={apiLoading} />
+      <LoadingAfterUpdate apiLoading={apiLoading} backgroundColor="#fff" />
 
       <SafeAreaView style={{flex: 1}}>
         <Title

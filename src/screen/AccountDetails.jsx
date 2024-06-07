@@ -80,7 +80,7 @@ const AccountDetails = ({navigation}) => {
           'Content-Type': 'multipart/form-data', // Required for FormData uploads
         },
       });
-      setAuthDetails({isLoggedIn: true, userDetails: res.data});
+      setAuthDetails(prev => ({...prev, userDetails: res.data}));
       setApiLoading(API_STATUS.SUCCESS);
       Toast.show({
         type: 'success',

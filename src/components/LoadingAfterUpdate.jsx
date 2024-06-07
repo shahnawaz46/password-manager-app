@@ -3,7 +3,10 @@ import {StyleSheet, View} from 'react-native';
 import Loading from './Loading';
 import {API_STATUS} from '../utils/Constants';
 
-const LoadingAfterUpdate = ({apiLoading}) => {
+const LoadingAfterUpdate = ({
+  apiLoading,
+  backgroundColor = 'rgba(0,0,0,0.2)',
+}) => {
   return (
     <>
       {apiLoading === API_STATUS.LOADING && (
@@ -14,7 +17,7 @@ const LoadingAfterUpdate = ({apiLoading}) => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.2)',
+            backgroundColor: backgroundColor,
             zIndex: 10,
           }}>
           <Loading />
