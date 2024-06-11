@@ -7,13 +7,15 @@ import {gettingData} from '../utils/EncDec';
 
 const SearchContext = createContext();
 
+export const initialState = {
+  status: API_STATUS.IDLE,
+  searching: false,
+  data: {vault: []},
+};
+
 const SearchContextProvider = ({children}) => {
   // state for store password that i am getting from passwordList(context)
-  const [searchPasswords, setSearchPasswords] = useState({
-    status: API_STATUS.IDLE,
-    searching: false,
-    data: [],
-  });
+  const [searchPasswords, setSearchPasswords] = useState(initialState);
 
   // custom debouce for delay function invocation
   const customDebouce = (cb, timeout) => {
@@ -31,12 +33,10 @@ const SearchContextProvider = ({children}) => {
 
   // here i am calling customDebouce function and passing callBack function(where logic is written for search) and timeout(for delay)
   const onSearch = customDebouce(async value => {
-    // return console.log('search', value);
     const [query, category] = value;
-    // const query = e[0];
 
     if (!query) {
-      setSearchPasswords({status: API_STATUS.IDLE, searching: false, data: []});
+      setSearchPasswords(initialState);
       return;
     }
 
@@ -51,11 +51,12 @@ const SearchContextProvider = ({children}) => {
         `/password/search?category=${category}&search=${query}`,
       );
 
-      const newPasswordData = await gettingData(res.data);
+      const {next, password} = res.data;
+      const newPasswordData = await gettingData(password);
       setSearchPasswords(prev => ({
         ...prev,
         status: API_STATUS.SUCCESS,
-        data: newPasswordData,
+        data: {next, vault: newPasswordData},
       }));
     } catch (err) {
       console.log(err?.response?.data?.error || err?.message);
@@ -71,7 +72,10 @@ const SearchContextProvider = ({children}) => {
 
     setSearchPasswords(prev => ({
       ...prev,
-      data: prev.data.filter(item => item._id !== id),
+      data: {
+        ...prev.data,
+        vault: prev.data.vault.filter(item => item._id !== id),
+      },
     }));
   };
 
@@ -80,8 +84,30 @@ const SearchContextProvider = ({children}) => {
 
     setSearchPasswords(prev => ({
       ...prev,
-      data: prev.data.map(item => (item._id === value._id ? value : item)),
+      data: {
+        ...prev.data,
+        vault: prev.data.map(item => (item._id === value._id ? value : item)),
+      },
     }));
+  };
+
+  const fetchMoreSearchData = async nextURL => {
+    try {
+      const res = await axiosInstance.get(nextURL);
+
+      const {next, password} = res.data;
+      const newPasswordData = await gettingData(password);
+      setSearchPasswords(prev => ({
+        ...prev,
+        data: {next, vault: [...prev.data.vault, ...newPasswordData]},
+      }));
+    } catch (err) {
+      console.log(err?.response?.data?.error || err?.message);
+      setSearchPasswords(prev => ({
+        ...prev,
+        status: API_STATUS.FAILED,
+      }));
+    }
   };
 
   return (
@@ -92,6 +118,7 @@ const SearchContextProvider = ({children}) => {
         onSearch,
         deleteSearchResult,
         editSearchResult,
+        fetchMoreSearchData,
       }}>
       {children}
     </SearchContext.Provider>

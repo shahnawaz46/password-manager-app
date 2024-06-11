@@ -17,7 +17,7 @@ import {gap} from '../utils/Spacing';
 import {useDataContext} from '../context/DataContext';
 import Title from '../components/Title';
 import {API_STATUS} from '../utils/Constants';
-import {useSearchContext} from '../context/SearchContext';
+import {initialState, useSearchContext} from '../context/SearchContext';
 
 const Home = ({navigation}) => {
   const {
@@ -34,7 +34,7 @@ const Home = ({navigation}) => {
 
   // filter category
   const filterCategory = value => {
-    setSearchPasswords({status: API_STATUS.IDLE, searching: false, data: []});
+    setSearchPasswords(initialState);
 
     if (category === value) return;
     setCategory(value);

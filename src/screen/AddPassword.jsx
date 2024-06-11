@@ -62,10 +62,19 @@ const AddPassword = ({route}) => {
       // after password added to the database then updating the state
       setPasswordList(prev => ({
         ...prev,
-        all: {...prev.all, data: [{_id, ...values}, ...prev.all.data]},
+        all: {
+          ...prev.all,
+          data: {
+            ...prev.all.data,
+            vault: [{_id, ...values}, ...prev.all.data.vault],
+          },
+        },
         [category]: {
           ...prev[category],
-          data: [{_id, ...values}, ...prev[category].data],
+          data: {
+            ...prev[category].data,
+            vault: [{_id, ...values}, ...prev[category].data.vault],
+          },
         },
         count: {
           ...prev.count,
@@ -129,9 +138,12 @@ const AddPassword = ({route}) => {
       // after password updated in database then updating the state
       const all = {
         ...passwordList.all,
-        data: passwordList.all.data.map(item =>
-          item._id === idRef.current ? {_id, ...values} : item,
-        ),
+        data: {
+          ...passwordList.all.data,
+          vault: passwordList.all.data.vault.map(item =>
+            item._id === idRef.current ? {_id, ...values} : item,
+          ),
+        },
       };
 
       // if category is also updated then i have to remove edited data from old category and add into new category same for count
@@ -140,13 +152,22 @@ const AddPassword = ({route}) => {
         updated = {
           [oldCategory]: {
             ...passwordList[oldCategory],
-            data: passwordList[oldCategory].data.filter(
-              item => item._id !== idRef.current,
-            ),
+            data: {
+              ...passwordList[oldCategory].data,
+              vault: passwordList[oldCategory].data.vault.filter(
+                item => item._id !== idRef.current,
+              ),
+            },
           },
           [updatedCategory]: {
             ...passwordList[updatedCategory],
-            data: [{_id, ...values}, ...passwordList[updatedCategory].data],
+            data: {
+              ...passwordList[updatedCategory].data,
+              vault: [
+                {_id, ...values},
+                ...passwordList[updatedCategory].data.vault,
+              ],
+            },
           },
           count: {
             ...passwordList.count,
@@ -158,9 +179,12 @@ const AddPassword = ({route}) => {
         updated = {
           [oldCategory]: {
             ...passwordList[oldCategory],
-            data: passwordList[oldCategory].data.map(item =>
-              item._id === idRef.current ? {_id, ...values} : item,
-            ),
+            data: {
+              ...passwordList[oldCategory].data,
+              vault: passwordList[oldCategory].data.vault.map(item =>
+                item._id === idRef.current ? {_id, ...values} : item,
+              ),
+            },
           },
         };
       }

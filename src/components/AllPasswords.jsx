@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {
+  ActivityIndicator,
   FlatList,
-  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -41,14 +41,17 @@ const AllPasswords = ({
     colors: {textPrimary},
   } = useAppTheme();
 
+  const {next, vault} = password;
+
   // data context where passwords are stored
-  const {setPasswordList} = useDataContext();
+  const {setPasswordList, fetchPassword} = useDataContext();
 
   // search context for search/delete/edit search results
-  const {deleteSearchResult} = useSearchContext();
+  const {deleteSearchResult, fetchMoreSearchData} = useSearchContext();
 
   const navigation = useNavigation();
   const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
+  const [paginating, setPaginating] = useState(false);
 
   const copyPassword = password => {
     Clipboard.setString(password);
@@ -69,10 +72,19 @@ const AllPasswords = ({
       const category = categoryType.toLowerCase();
       setPasswordList(prev => ({
         ...prev,
-        all: {...prev.all, data: prev.all.data.filter(item => item._id !== id)},
+        all: {
+          ...prev.all,
+          data: {
+            ...prev.all.data,
+            vault: prev.all.data.vault.filter(item => item._id !== id),
+          },
+        },
         [category]: {
           ...prev[category],
-          data: prev[category].data.filter(item => item._id !== id),
+          data: {
+            ...prev[category].data,
+            vault: prev[category].data.vault.filter(item => item._id !== id),
+          },
         },
         count: {
           ...prev.count,
@@ -100,6 +112,20 @@ const AllPasswords = ({
 
   const editVault = item => {
     navigation.navigate('Add Password', item);
+  };
+
+  // pagination
+  const fetchMoreData = async () => {
+    if (paginating) return;
+
+    setPaginating(prev => !prev);
+    if (isShowingSearchResult && status === API_STATUS.SUCCESS) {
+      await fetchMoreSearchData(next);
+      setPaginating(prev => !prev);
+    } else if (status === API_STATUS.SUCCESS) {
+      await fetchPassword(category, next);
+      setPaginating(prev => !prev);
+    }
   };
 
   return (
@@ -130,10 +156,10 @@ const AllPasswords = ({
         {/* list of passwords */}
         {status === API_STATUS.LOADING ? (
           <Loading />
-        ) : password?.length > 0 ? (
+        ) : (
           <View style={{flex: 1, flexGrow: 1}}>
             <FlatList
-              data={password}
+              data={vault}
               contentContainerStyle={styles.passwordCardContainer}
               keyExtractor={item => item._id}
               renderItem={({item}) => (
@@ -207,16 +233,23 @@ const AllPasswords = ({
                   </View>
                 </View>
               )}
+              ListEmptyComponent={() => (
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <Text style={{fontSize: 20}}>Not Data Available</Text>
+                </View>
+              )}
+              onEndReached={() => next && fetchMoreData()}
+              onEndReachedThreshold={0.5}
+              ListFooterComponent={() =>
+                next && <ActivityIndicator size={38} color={'#6FD09A'} />
+              }
+              // debug={true}
             />
-          </View>
-        ) : (
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Text style={{fontSize: 20}}>Not Available</Text>
           </View>
         )}
       </View>

@@ -10,9 +10,9 @@ import {API_STATUS, LOGIN_PROCESS} from '../utils/Constants';
 const DataContext = createContext();
 
 const passwordListInitialState = {
-  all: {status: API_STATUS.LOADING, data: [], error: null},
-  app: {status: API_STATUS.LOADING, data: [], error: null},
-  browser: {status: API_STATUS.LOADING, data: [], error: null},
+  all: {status: API_STATUS.LOADING, data: {vault: []}, error: null},
+  app: {status: API_STATUS.LOADING, data: {vault: []}, error: null},
+  browser: {status: API_STATUS.LOADING, data: {vault: []}, error: null},
   count: {all: 0, app: 0, browser: 0},
 };
 
@@ -25,31 +25,48 @@ const DataContextProvider = ({children}) => {
   const [passwordList, setPasswordList] = useState(passwordListInitialState);
   const [authDetails, setAuthDetails] = useState(authDetailsInitialState);
 
-  const fetchPassword = async type => {
+  const fetchPassword = async (type, nextURL) => {
     try {
       if (type === 'All') {
-        const res = await axiosInstance.get('/password?category=All');
-        const decryptedData = await gettingData(res.data.password);
+        const res = await axiosInstance.get(
+          nextURL || '/password?category=All',
+        );
+        const {next, password} = res.data;
+        const decryptedData = await gettingData(password);
         setPasswordList(prev => ({
           ...prev,
-          all: {...prev.all, status: API_STATUS.SUCCESS, data: decryptedData},
+          all: {
+            ...prev.all,
+            status: API_STATUS.SUCCESS,
+            data: {next, vault: [...prev.all.data.vault, ...decryptedData]},
+          },
         }));
       } else if (type === 'App') {
-        const res = await axiosInstance.get('/password?category=App');
-        const decryptedData = await gettingData(res.data.password);
+        const res = await axiosInstance.get(
+          nextURL || '/password?category=App',
+        );
+        const {next, password} = res.data;
+        const decryptedData = await gettingData(password);
         setPasswordList(prev => ({
           ...prev,
-          app: {...prev.app, status: API_STATUS.SUCCESS, data: decryptedData},
+          app: {
+            ...prev.app,
+            status: API_STATUS.SUCCESS,
+            data: {next, vault: [...prev.app.data.vault, ...decryptedData]},
+          },
         }));
       } else if (type === 'Browser') {
-        const res = await axiosInstance.get('/password?category=Browser');
-        const decryptedData = await gettingData(res.data.password);
+        const res = await axiosInstance.get(
+          nextURL || '/password?category=Browser',
+        );
+        const {next, password} = res.data;
+        const decryptedData = await gettingData(password);
         setPasswordList(prev => ({
           ...prev,
           browser: {
             ...prev.browser,
             status: API_STATUS.SUCCESS,
-            data: decryptedData,
+            data: {next, vault: [...prev.browser.data.vault, ...decryptedData]},
           },
         }));
       }
