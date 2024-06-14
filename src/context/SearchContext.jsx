@@ -86,7 +86,9 @@ const SearchContextProvider = ({children}) => {
       ...prev,
       data: {
         ...prev.data,
-        vault: prev.data.map(item => (item._id === value._id ? value : item)),
+        vault: prev.data.vault.map(item =>
+          item._id === value._id ? value : item,
+        ),
       },
     }));
   };

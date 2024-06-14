@@ -4,21 +4,21 @@ GuardVault is a user-friendly password manager application built with React Nati
 
 **Features:**
 
-* **Secure Storage:** Passwords are stored using strong AES-256 encryption for maximum protection.
-* **Add/Edit/Delete:** Easily Add/Edit/Delete vault.
-* **Account Details Update:** Easily edit saved login information like username, profile image, mobile no, etc.
-* **Forgot Password:** Recover your password through a secure process.
+- **Secure Storage:** Passwords are stored using strong AES-256 encryption for maximum protection.
+- **Add/Edit/Delete:** Easily Add/Edit/Delete vault.
+- **Account Details Update:** Easily edit saved login information like username, profile image, mobile no, etc.
+- **Forgot Password:** Recover your password through a secure process.
 
 **Tech Stack:**
 
-* **Front-End:**
-    * React Native
-    * React Navigation (navigation)
-    * crypto-js (encryption)
-* **Back-End (Optional):**
-    * Node.js
-    * Express.js
-    * MongoDB (secure storage)
+- **Front-End:**
+  - React Native
+  - React Navigation (navigation)
+  - crypto-js (encryption)
+- **Back-End (Optional):**
+  - Node.js
+  - Express.js
+  - MongoDB (secure storage)
 
 **Screenshots:**
 
@@ -45,4 +45,4 @@ We welcome contributions to this project! Please follow these guidelines:
 
 **Contact:**
 
-Feel free to reach out with any questions or feedback at shahnawaz85748@gmail.com
+Feel free to reach out with any questions or feedback at shahnawaz85748@gmail.com or checkout https://shahnawaz.vercel.app/
