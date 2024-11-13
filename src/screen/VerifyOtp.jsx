@@ -38,6 +38,7 @@ const VerifyOtp = ({navigation, route}) => {
       const res = await axiosInstance.post('/user/otp-verify', {
         otp,
         email: route?.params?.email,
+        type: route?.params?.type,
       });
       if (route?.params?.type === 'signup') {
         const {token, _id: id} = res.data;

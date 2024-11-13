@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -52,6 +53,11 @@ const AllPasswords = ({
   const navigation = useNavigation();
   const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
   const [paginating, setPaginating] = useState(false);
+  const [modalVisible, setModalVisible] = useState({
+    show: false,
+    id: null,
+    categoryType: '',
+  });
 
   const copyPassword = password => {
     Clipboard.setString(password);
@@ -131,7 +137,10 @@ const AllPasswords = ({
   return (
     <>
       {/* for show loading screen after delete the password/vault */}
-      <LoadingAfterUpdate apiLoading={apiLoading} />
+      <LoadingAfterUpdate
+        apiLoading={apiLoading}
+        backgroundColor={'rgba(0,0,0,0.5)'}
+      />
 
       <View style={styles.passwordContainer}>
         <Text style={{fontSize: 18, color: textPrimary}}>All Passwords</Text>
@@ -215,7 +224,13 @@ const AllPasswords = ({
                           </View>
                         </MenuOption>
                         <MenuOption
-                          onSelect={() => onDelete(item._id, item.category)}
+                          onSelect={() =>
+                            setModalVisible({
+                              show: true,
+                              id: item._id,
+                              categoryType: item.category,
+                            })
+                          }
                           style={{padding: 10}}>
                           <View
                             style={{
@@ -253,6 +268,45 @@ const AllPasswords = ({
           </View>
         )}
       </View>
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible.show}
+        onRequestClose={() => {
+          setModalVisible({show: false, id: null, categoryType: ''});
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>
+              Are you sure you want to delete this password? This action cannot
+              be undone.
+            </Text>
+
+            <View style={styles.passwordCategory}>
+              <CustomButton
+                title={'Confirm'}
+                paddingHorizontal={25}
+                fontSize={16}
+                borderRadius={8}
+                onPress={() => {
+                  onDelete(modalVisible.id, modalVisible.categoryType);
+                  setModalVisible({show: false, id: null, categoryType: ''});
+                }}
+              />
+              <CustomButton
+                title={'Cancel'}
+                paddingHorizontal={25}
+                fontSize={16}
+                borderRadius={8}
+                onPress={() =>
+                  setModalVisible({show: false, id: null, categoryType: ''})
+                }
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </>
   );
 };
@@ -291,5 +345,35 @@ const styles = StyleSheet.create({
   passwordIconContainer: {
     flexDirection: 'row',
     gap: gap,
+  },
+
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalView: {
+    margin: 12,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+
+  modalText: {
+    fontSize: 17,
+    fontWeight: '500',
+    color: '#000',
+    marginBottom: 6,
+    textAlign: 'center',
   },
 });

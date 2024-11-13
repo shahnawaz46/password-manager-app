@@ -2,7 +2,7 @@ import axios from 'axios';
 import * as Keychain from 'react-native-keychain';
 
 const baseURL = 'https://password-manager-app-server.onrender.com/api';
-// const baseURL = 'http://192.168.1.18:9000/api';
+// const baseURL = 'http://192.168.1.6:9000/api';
 
 const axiosInstance = axios.create({
   baseURL: baseURL,

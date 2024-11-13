@@ -9,6 +9,8 @@ const CustomButton = ({
   selected = false,
   onPress,
   height = 30,
+  paddingHorizontal = 15,
+  borderRadius = 10,
   fontSize = 15,
   disabled = false,
 }) => {
@@ -19,8 +21,8 @@ const CustomButton = ({
     <TouchableOpacity
       style={{
         backgroundColor: selected ? '#1db962' : primary,
-        paddingHorizontal: 15,
-        borderRadius: 10,
+        paddingHorizontal: paddingHorizontal,
+        borderRadius: borderRadius,
         height,
         alignItems: 'center',
         justifyContent: 'center',
