@@ -1,21 +1,21 @@
-import React, {useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import React, { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons';
 
 // components
-import {gap} from '../utils/Spacing';
+import { gap } from '../utils/Spacing';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
-import {useAppTheme} from '../routes/Router';
+import { useAppTheme } from '../routes/Router';
 import axiosInstance from '../axios/AxiosInstance';
 import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
-import {API_STATUS} from '../utils/Constants';
+import { API_STATUS } from '../utils/Constants';
 
-const ForgotPassword = ({navigation}) => {
+const ForgotPassword = ({ navigation }) => {
   const {
-    colors: {primary, textPrimary},
+    colors: { primary, textPrimary },
   } = useAppTheme();
 
   const [email, setEmail] = useState(null);
@@ -36,10 +36,10 @@ const ForgotPassword = ({navigation}) => {
         email,
         type: 'forgot-password',
       });
-      Toast.show({type: 'success', text1: res.data.message});
+      Toast.show({ type: 'success', text1: res.data.message });
       setApiLoading(API_STATUS.SUCCESS);
       setTimeout(() => {
-        navigation.navigate('Verify OTP', {email, type: 'forgot-password'});
+        navigation.navigate('Verify OTP', { email, type: 'forgot-password' });
       }, 500);
     } catch (err) {
       setApiLoading(API_STATUS.FAILED);
@@ -52,15 +52,16 @@ const ForgotPassword = ({navigation}) => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{ flex: 1 }}>
       {/* for show loading screen after submit email */}
       <LoadingAfterUpdate apiLoading={apiLoading} />
 
-      <View style={{alignItems: 'center', marginTop: 30}}>
+      <View style={{ alignItems: 'center', marginTop: 30 }}>
         <TouchableOpacity
-          style={{...styles.verifyOtpIcon, backgroundColor: primary}}
-          onPress={() => navigation.navigate('Home')}>
-          <MaterialIcons name="verified-user" color={'#fff'} size={50} />
+          style={{ ...styles.verifyOtpIcon, backgroundColor: primary }}
+          onPress={() => navigation.navigate('Home')}
+        >
+          <MaterialDesignIcons name="verified-user" color={'#fff'} size={50} />
         </TouchableOpacity>
 
         <Text
@@ -69,25 +70,31 @@ const ForgotPassword = ({navigation}) => {
             color: textPrimary,
             marginTop: 5,
             fontWeight: 500,
-          }}>
+          }}
+        >
           Verification
         </Text>
       </View>
 
-      <View style={{alignItems: 'center', marginTop: 40, marginHorizontal: 20}}>
+      <View
+        style={{ alignItems: 'center', marginTop: 40, marginHorizontal: 20 }}
+      >
         <Text
           style={{
             fontSize: 17,
             fontWeight: '500',
             color: '#333',
             textAlign: 'center',
-          }}>
+          }}
+        >
           Please Enter Your Registered Email Address To Receive a Verification
           Code
         </Text>
       </View>
 
-      <View style={{flex: 1, justifyContent: 'center', gap: gap, padding: 20}}>
+      <View
+        style={{ flex: 1, justifyContent: 'center', gap: gap, padding: 20 }}
+      >
         <CustomInput
           placeholder={'Enter Your Registered Email'}
           backgroundColor={'#edeef1'}

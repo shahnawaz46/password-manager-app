@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -8,8 +8,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
+import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Toast from 'react-native-toast-message';
 import {
@@ -18,18 +18,18 @@ import {
   MenuOption,
   MenuTrigger,
 } from 'react-native-popup-menu';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 // components
-import {useAppTheme} from '../routes/Router';
+import { useAppTheme } from '../routes/Router';
 import CustomButton from './CustomButton';
-import {gap} from '../utils/Spacing';
+import { gap } from '../utils/Spacing';
 import Loading from './Loading';
 import axiosInstance from '../axios/AxiosInstance';
-import {useDataContext} from '../context/DataContext';
-import {API_STATUS} from '../utils/Constants';
+import { useDataContext } from '../context/DataContext';
+import { API_STATUS } from '../utils/Constants';
 import LoadingAfterUpdate from './LoadingAfterUpdate';
-import {useSearchContext} from '../context/SearchContext';
+import { useSearchContext } from '../context/SearchContext';
 
 const AllPasswords = ({
   password,
@@ -39,16 +39,16 @@ const AllPasswords = ({
   isShowingSearchResult,
 }) => {
   const {
-    colors: {textPrimary},
+    colors: { textPrimary },
   } = useAppTheme();
 
-  const {next, vault} = password;
+  const { next, vault } = password;
 
   // data context where passwords are stored
-  const {setPasswordList, fetchPassword} = useDataContext();
+  const { setPasswordList, fetchPassword } = useDataContext();
 
   // search context for search/delete/edit search results
-  const {deleteSearchResult, fetchMoreSearchData} = useSearchContext();
+  const { deleteSearchResult, fetchMoreSearchData } = useSearchContext();
 
   const navigation = useNavigation();
   const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
@@ -72,7 +72,7 @@ const AllPasswords = ({
   const onDelete = async (id, categoryType) => {
     try {
       setApiLoading(API_STATUS.LOADING);
-      const res = await axiosInstance.delete('/password', {data: {id}});
+      const res = await axiosInstance.delete('/password', { data: { id } });
 
       // after deleted from the database i am also removing from state
       const category = categoryType.toLowerCase();
@@ -105,7 +105,7 @@ const AllPasswords = ({
       }
 
       setApiLoading(API_STATUS.SUCCESS);
-      Toast.show({type: 'success', text1: res.data.msg, topOffset: 25});
+      Toast.show({ type: 'success', text1: res.data.msg, topOffset: 25 });
     } catch (err) {
       setApiLoading(API_STATUS.FAILED);
       Toast.show({
@@ -143,7 +143,7 @@ const AllPasswords = ({
       />
 
       <View style={styles.passwordContainer}>
-        <Text style={{fontSize: 18, color: textPrimary}}>All Passwords</Text>
+        <Text style={{ fontSize: 18, color: textPrimary }}>All Passwords</Text>
         <View style={styles.passwordCategory}>
           <CustomButton
             title={'All'}
@@ -166,21 +166,22 @@ const AllPasswords = ({
         {status === API_STATUS.LOADING ? (
           <Loading />
         ) : (
-          <View style={{flex: 1, flexGrow: 1}}>
+          <View style={{ flex: 1, flexGrow: 1 }}>
             <FlatList
               data={vault}
               contentContainerStyle={styles.passwordCardContainer}
               keyExtractor={item => item._id}
-              renderItem={({item}) => (
+              renderItem={({ item }) => (
                 <View style={styles.passwordCard}>
-                  <View style={{flex: 1}}>
+                  <View style={{ flex: 1 }}>
                     <Text
                       numberOfLines={1}
                       style={{
                         fontSize: 15,
                         color: textPrimary,
                         ...styles.nameAndUserName,
-                      }}>
+                      }}
+                    >
                       {item.name}
                     </Text>
                     <Text numberOfLines={1}>{item.userName}</Text>
@@ -189,38 +190,39 @@ const AllPasswords = ({
                   {/* icon container with copy and popup icon */}
                   <View style={styles.passwordIconContainer}>
                     <TouchableOpacity
-                      onPress={() => copyPassword(item.password)}>
+                      onPress={() => copyPassword(item.password)}
+                    >
                       <Ionicons name="copy-outline" size={22} />
                     </TouchableOpacity>
 
                     {/* menu for edit and delete password */}
                     <Menu>
                       <MenuTrigger>
-                        <MaterialCommunityIcons
-                          name="dots-vertical"
-                          size={24}
-                        />
+                        <Ionicons name="ellipsis-vertical" size={24} />
                       </MenuTrigger>
 
                       <MenuOptions
                         optionsContainerStyle={{
                           width: 120,
                           borderRadius: 10,
-                        }}>
+                        }}
+                      >
                         <MenuOption
                           onSelect={() => editVault(item)}
-                          style={{paddingHorizontal: 10, paddingTop: 10}}>
+                          style={{ paddingHorizontal: 10, paddingTop: 10 }}
+                        >
                           <View
                             style={{
                               flexDirection: 'row',
                               alignItems: 'center',
                               gap: gap,
-                            }}>
-                            <MaterialCommunityIcons
+                            }}
+                          >
+                            <MaterialDesignIcons
                               name="square-edit-outline"
                               size={20}
                             />
-                            <Text style={{fontSize: 17}}>Edit</Text>
+                            <Text style={{ fontSize: 17 }}>Edit</Text>
                           </View>
                         </MenuOption>
                         <MenuOption
@@ -231,16 +233,18 @@ const AllPasswords = ({
                               categoryType: item.category,
                             })
                           }
-                          style={{padding: 10}}>
+                          style={{ padding: 10 }}
+                        >
                           <View
                             style={{
                               flexDirection: 'row',
                               alignItems: 'center',
                               gap: gap,
-                            }}>
-                            <MaterialCommunityIcons name="delete" size={20} />
+                            }}
+                          >
+                            <MaterialDesignIcons name="delete" size={20} />
 
-                            <Text style={{fontSize: 17}}>Delete</Text>
+                            <Text style={{ fontSize: 17 }}>Delete</Text>
                           </View>
                         </MenuOption>
                       </MenuOptions>
@@ -254,8 +258,9 @@ const AllPasswords = ({
                     flex: 1,
                     justifyContent: 'center',
                     alignItems: 'center',
-                  }}>
-                  <Text style={{fontSize: 20}}>Not Data Available</Text>
+                  }}
+                >
+                  <Text style={{ fontSize: 20 }}>Not Data Available</Text>
                 </View>
               )}
               onEndReached={() => next && fetchMoreData()}
@@ -274,8 +279,9 @@ const AllPasswords = ({
         transparent={true}
         visible={modalVisible.show}
         onRequestClose={() => {
-          setModalVisible({show: false, id: null, categoryType: ''});
-        }}>
+          setModalVisible({ show: false, id: null, categoryType: '' });
+        }}
+      >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <Text style={styles.modalText}>
@@ -291,7 +297,7 @@ const AllPasswords = ({
                 borderRadius={8}
                 onPress={() => {
                   onDelete(modalVisible.id, modalVisible.categoryType);
-                  setModalVisible({show: false, id: null, categoryType: ''});
+                  setModalVisible({ show: false, id: null, categoryType: '' });
                 }}
               />
               <CustomButton
@@ -300,7 +306,7 @@ const AllPasswords = ({
                 fontSize={16}
                 borderRadius={8}
                 onPress={() =>
-                  setModalVisible({show: false, id: null, categoryType: ''})
+                  setModalVisible({ show: false, id: null, categoryType: '' })
                 }
               />
             </View>

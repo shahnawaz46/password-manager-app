@@ -1,15 +1,15 @@
-import React, {useEffect, useState} from 'react';
-import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
-import {MenuProvider} from 'react-native-popup-menu';
+import React, { useEffect, useState } from 'react';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
+import { MenuProvider } from 'react-native-popup-menu';
 import * as Keychain from 'react-native-keychain';
 
 // components
-import {useDataContext} from '../context/DataContext';
+import { useDataContext } from '../context/DataContext';
 import AppStack from './AppStack';
 import AuthStack from './AuthStack';
 import Loading from '../components/Loading';
 import axiosInstance from '../axios/AxiosInstance';
-import {LOGIN_PROCESS} from '../utils/Constants';
+import { LOGIN_PROCESS } from '../utils/Constants';
 
 const theme = {
   ...DefaultTheme,
@@ -29,7 +29,7 @@ export const useAppTheme = () => theme;
 
 const Router = () => {
   const {
-    authDetails: {isLoggedIn},
+    authDetails: { isLoggedIn },
     setAuthDetails,
     setPasswordList,
   } = useDataContext();
@@ -44,6 +44,8 @@ const Router = () => {
           axiosInstance.get('/user/profile'),
           axiosInstance.get('/count'),
         ]);
+
+        console.log('getUserDetails: ', profileRes, countRes);
 
         setAuthDetails({
           isLoggedIn: LOGIN_PROCESS.COMPLETE,

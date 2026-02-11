@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Image,
   StyleSheet,
@@ -7,28 +7,27 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 
 // components
-import {useAppTheme} from '../routes/Router';
+import { useAppTheme } from '../routes/Router';
 import AllPasswords from '../components/AllPasswords';
-import {gap} from '../utils/Spacing';
-import {useDataContext} from '../context/DataContext';
+import { gap } from '../utils/Spacing';
+import { useDataContext } from '../context/DataContext';
 import Title from '../components/Title';
-import {API_STATUS} from '../utils/Constants';
-import {initialState, useSearchContext} from '../context/SearchContext';
+import { API_STATUS } from '../utils/Constants';
+import { initialState, useSearchContext } from '../context/SearchContext';
 
-const Home = ({navigation}) => {
+const Home = ({ navigation }) => {
   const {
-    colors: {primary, textPrimary},
+    colors: { primary, textPrimary },
   } = useAppTheme();
 
   // data context where passwords are stored
-  const {passwordList, authDetails, fetchPassword} = useDataContext();
+  const { passwordList, authDetails, fetchPassword } = useDataContext();
 
   // search context for search/delete/edit search results
-  const {searchPasswords, setSearchPasswords, onSearch} = useSearchContext();
+  const { searchPasswords, setSearchPasswords, onSearch } = useSearchContext();
 
   const [category, setCategory] = useState('All');
 
@@ -60,7 +59,9 @@ const Home = ({navigation}) => {
   return (
     <View style={styles.homeContainer}>
       <View style={styles.topContainer}>
-        <Title style={{fontSize: 23, fontWeight: '500', color: textPrimary}} />
+        <Title
+          style={{ fontSize: 23, fontWeight: '500', color: textPrimary }}
+        />
 
         <Ionicons
           name="add-outline"
@@ -83,8 +84,8 @@ const Home = ({navigation}) => {
           />
 
           <View>
-            <Text style={{fontSize: 14}}>Welcome Back,</Text>
-            <Text style={{color: textPrimary, fontSize: 16}}>
+            <Text style={{ fontSize: 14 }}>Welcome Back,</Text>
+            <Text style={{ color: textPrimary, fontSize: 16 }}>
               {authDetails.userDetails?.fullName}
             </Text>
           </View>
@@ -113,11 +114,12 @@ const Home = ({navigation}) => {
             style={{
               ...styles.passwordCategoryIcon,
               borderColor: primary,
-            }}>
+            }}
+          >
             <Ionicons name="clipboard" color={primary} size={22} />
           </View>
-          <Text style={{fontSize: 16, color: textPrimary}}>All</Text>
-          <Text style={{fontSize: 14}}>
+          <Text style={{ fontSize: 16, color: textPrimary }}>All</Text>
+          <Text style={{ fontSize: 14 }}>
             {passwordList?.count?.all || 0} Passwords
           </Text>
         </View>
@@ -126,11 +128,12 @@ const Home = ({navigation}) => {
             style={{
               ...styles.passwordCategoryIcon,
               borderColor: primary,
-            }}>
+            }}
+          >
             <Ionicons name="logo-chrome" color={primary} size={27} />
           </View>
-          <Text style={{fontSize: 16, color: textPrimary}}>Browser</Text>
-          <Text style={{fontSize: 14}}>
+          <Text style={{ fontSize: 16, color: textPrimary }}>Browser</Text>
+          <Text style={{ fontSize: 14 }}>
             {passwordList?.count?.browser || 0} Passwords
           </Text>
         </View>
@@ -140,11 +143,12 @@ const Home = ({navigation}) => {
             style={{
               ...styles.passwordCategoryIcon,
               borderColor: primary,
-            }}>
-            <FontAwesome name="mobile" color={primary} size={31} />
+            }}
+          >
+            <Ionicons name="apps" color={primary} size={20} />
           </View>
-          <Text style={{fontSize: 16, color: textPrimary}}>App</Text>
-          <Text style={{fontSize: 14}}>
+          <Text style={{ fontSize: 16, color: textPrimary }}>App</Text>
+          <Text style={{ fontSize: 14 }}>
             {passwordList?.count?.app || 0} Passwords
           </Text>
         </View>

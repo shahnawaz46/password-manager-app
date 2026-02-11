@@ -1,7 +1,7 @@
-import React, {useEffect} from 'react';
-import {StatusBar} from 'react-native';
-import Toast, {BaseToast, ErrorToast} from 'react-native-toast-message';
-import SplashScreen from 'react-native-splash-screen';
+import React, { useEffect } from 'react';
+import { StatusBar } from 'react-native';
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+// import SplashScreen from 'react-native-splash-screen';
 
 // components
 import DataContextProvider from './src/context/DataContext';
@@ -12,8 +12,8 @@ const toastConfig = {
   success: props => (
     <BaseToast
       {...props}
-      style={{borderLeftColor: '#6FD09A', width: '90%'}}
-      contentContainerStyle={{paddingHorizontal: 15}}
+      style={{ borderLeftColor: '#6FD09A', width: '90%' }}
+      contentContainerStyle={{ paddingHorizontal: 15 }}
       text1Style={{
         fontSize: 15,
         fontWeight: '400',
@@ -24,8 +24,8 @@ const toastConfig = {
   error: props => (
     <ErrorToast
       {...props}
-      style={{borderLeftColor: '#FF4C00', width: '90%'}}
-      contentContainerStyle={{paddingHorizontal: 15}}
+      style={{ borderLeftColor: '#FF4C00', width: '90%' }}
+      contentContainerStyle={{ paddingHorizontal: 15 }}
       text1Style={{
         fontSize: 15,
         fontWeight: '400',
@@ -36,9 +36,10 @@ const toastConfig = {
 };
 
 const App = () => {
-  useEffect(() => {
-    SplashScreen.hide();
-  }, []);
+  // useEffect(() => {
+  //   SplashScreen.hide();
+  // }, []);
+
   return (
     <>
       <StatusBar />

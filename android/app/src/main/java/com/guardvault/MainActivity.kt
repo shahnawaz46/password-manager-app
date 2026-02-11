@@ -6,16 +6,17 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnable
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 
 // for splash screen
-import android.os.Bundle;
-import org.devio.rn.splashscreen.SplashScreen;
+// import android.os.Bundle;
+// import org.devio.rn.splashscreen.SplashScreen;
 
 class MainActivity : ReactActivity() {
 
-   // for splash screen
-   override fun onCreate(savedInstanceState: Bundle?) {
-    SplashScreen.show(this);  
-    super.onCreate(null)
-  }
+   /** for splash screen
+   * this STUPID CODE took my entire day to solve bug why gradle failed(after updating react native 0.73.6 to 0.83.1)
+   * override fun onCreate(savedInstanceState: Bundle?) {
+   * SplashScreen.show(this);  
+   * super.onCreate(null)
+  } */
 
   /**
    * Returns the name of the main component registered from JavaScript. This is used to schedule

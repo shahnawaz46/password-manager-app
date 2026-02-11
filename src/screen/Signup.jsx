@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -6,25 +6,25 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 import Toast from 'react-native-toast-message';
-import {Formik} from 'formik';
+import { Formik } from 'formik';
 
 // components
-import {gap} from '../utils/Spacing';
+import { gap } from '../utils/Spacing';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
-import {useAppTheme} from '../routes/Router';
+import { useAppTheme } from '../routes/Router';
 import Title from '../components/Title';
 import axiosInstance from '../axios/AxiosInstance';
-import {singupSchema} from '../validation/YupValidationSchema';
+import { singupSchema } from '../validation/YupValidationSchema';
 import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
-import {API_STATUS} from '../utils/Constants';
+import { API_STATUS } from '../utils/Constants';
 
-const Signup = ({navigation}) => {
+const Signup = ({ navigation }) => {
   const {
-    colors: {primary, textPrimary},
+    colors: { primary, textPrimary },
   } = useAppTheme();
 
   // for show/hide password by click on icon
@@ -35,7 +35,7 @@ const Signup = ({navigation}) => {
     try {
       setApiLoading(API_STATUS.LOADING);
       await axiosInstance.post('/user/register', value);
-      navigation.navigate('Verify OTP', {email: value.email, type: 'signup'});
+      navigation.navigate('Verify OTP', { email: value.email, type: 'signup' });
     } catch (err) {
       setApiLoading(API_STATUS.FAILED);
       Toast.show({
@@ -48,12 +48,13 @@ const Signup = ({navigation}) => {
 
   return (
     <ScrollView
-      contentContainerStyle={{flexGrow: 1}}
-      keyboardShouldPersistTaps={'always'}>
+      contentContainerStyle={{ flexGrow: 1 }}
+      keyboardShouldPersistTaps={'always'}
+    >
       {/* for show loading screen after Signup */}
       <LoadingAfterUpdate apiLoading={apiLoading} />
 
-      <SafeAreaView style={{flex: 1}}>
+      <SafeAreaView style={{ flex: 1 }}>
         <Title
           style={{
             fontSize: 28,
@@ -75,9 +76,10 @@ const Signup = ({navigation}) => {
               confirmPassword: '',
             }}
             validationSchema={singupSchema}
-            onSubmit={value => handleSignup(value)}>
-            {({values, errors, touched, handleChange, handleSubmit}) => (
-              <View style={{gap: gap}}>
+            onSubmit={value => handleSignup(value)}
+          >
+            {({ values, errors, touched, handleChange, handleSubmit }) => (
+              <View style={{ gap: gap }}>
                 <View>
                   <CustomInput
                     placeholder={'Full Name'}
@@ -155,7 +157,7 @@ const Signup = ({navigation}) => {
 
         {/* bottom part for redirect to signin */}
         <View style={styles.alreadyAccount}>
-          <Text style={{fontSize: 15}}>Already have an account?</Text>
+          <Text style={{ fontSize: 15 }}>Already have an account?</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Signin')}>
             <Text
               style={{
@@ -163,7 +165,8 @@ const Signup = ({navigation}) => {
                 fontWeight: '700',
                 marginLeft: 2,
                 fontSize: 15,
-              }}>
+              }}
+            >
               Login
             </Text>
           </TouchableOpacity>

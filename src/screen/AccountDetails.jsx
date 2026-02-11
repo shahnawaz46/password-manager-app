@@ -1,34 +1,34 @@
-import React, {useEffect, useState} from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import React, { useEffect, useState } from 'react';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 import ImagePicker from 'react-native-image-crop-picker';
 import Toast from 'react-native-toast-message';
-import {Dropdown} from 'react-native-element-dropdown';
-import {Formik} from 'formik';
+import { Dropdown } from 'react-native-element-dropdown';
+import { Formik } from 'formik';
 
 // components
-import {useDataContext} from '../context/DataContext';
-import {useAppTheme} from '../routes/Router';
-import {gap} from '../utils/Spacing';
+import { useDataContext } from '../context/DataContext';
+import { useAppTheme } from '../routes/Router';
+import { gap } from '../utils/Spacing';
 import CustomInput2 from '../components/CustomInput2';
 import CustomButton from '../components/CustomButton';
 import axiosInstance from '../axios/AxiosInstance';
-import {accountUpdateSchema} from '../validation/YupValidationSchema';
+import { accountUpdateSchema } from '../validation/YupValidationSchema';
 import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
-import {API_STATUS} from '../utils/Constants';
+import { API_STATUS } from '../utils/Constants';
 
 const data = [
-  {label: 'Male', value: 'Male'},
-  {label: 'Female', value: 'Female'},
-  {label: 'Others', value: 'Others'},
+  { label: 'Male', value: 'Male' },
+  { label: 'Female', value: 'Female' },
+  { label: 'Others', value: 'Others' },
 ];
 
-const AccountDetails = ({navigation}) => {
+const AccountDetails = ({ navigation }) => {
   const {
-    colors: {textPrimary},
+    colors: { textPrimary },
   } = useAppTheme();
 
-  const {authDetails, setAuthDetails} = useDataContext();
+  const { authDetails, setAuthDetails } = useDataContext();
 
   const [accountDetails, setAccountDetails] = useState({});
   const [profileImage, setProfileImage] = useState({});
@@ -80,7 +80,7 @@ const AccountDetails = ({navigation}) => {
           'Content-Type': 'multipart/form-data', // Required for FormData uploads
         },
       });
-      setAuthDetails(prev => ({...prev, userDetails: res.data}));
+      setAuthDetails(prev => ({ ...prev, userDetails: res.data }));
       setApiLoading(API_STATUS.SUCCESS);
       Toast.show({
         type: 'success',
@@ -98,11 +98,11 @@ const AccountDetails = ({navigation}) => {
   };
 
   useEffect(() => {
-    setAccountDetails({...authDetails.userDetails});
+    setAccountDetails({ ...authDetails.userDetails });
   }, [authDetails]);
 
   return (
-    <View style={{flex: 1, padding: gap}}>
+    <View style={{ flex: 1, padding: gap }}>
       {/* for show loading screen after update the acount details */}
       <LoadingAfterUpdate apiLoading={apiLoading} />
 
@@ -110,11 +110,12 @@ const AccountDetails = ({navigation}) => {
       <View style={styles.topContainer}>
         <TouchableOpacity
           style={styles.backIcon}
-          onPress={() => navigation.navigate('Profile')}>
+          onPress={() => navigation.navigate('Profile')}
+        >
           <Ionicons name="chevron-back-outline" color={textPrimary} size={22} />
         </TouchableOpacity>
 
-        <Text style={{color: textPrimary, fontSize: 23, textAlign: 'center'}}>
+        <Text style={{ color: textPrimary, fontSize: 23, textAlign: 'center' }}>
           Account Details
         </Text>
       </View>
@@ -123,7 +124,8 @@ const AccountDetails = ({navigation}) => {
         initialValues={accountDetails}
         enableReinitialize
         validationSchema={accountUpdateSchema}
-        onSubmit={values => handleUpdateProfile(values)}>
+        onSubmit={values => handleUpdateProfile(values)}
+      >
         {({
           values,
           touched,
@@ -149,7 +151,7 @@ const AccountDetails = ({navigation}) => {
                 name="camera"
                 size={26}
                 color={'#000'}
-                style={{position: 'absolute', bottom: 8}}
+                style={{ position: 'absolute', bottom: 8 }}
                 onPress={() => uploadImage(setFieldValue)}
               />
             </View>
@@ -192,7 +194,7 @@ const AccountDetails = ({navigation}) => {
                   fontSize: 16,
                   color: '#aaafb5',
                 }}
-                selectedTextStyle={{color: '#000'}}
+                selectedTextStyle={{ color: '#000' }}
                 labelField={'label'}
                 valueField={'value'}
                 placeholder="Select Gender"

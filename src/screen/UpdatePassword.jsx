@@ -1,23 +1,23 @@
-import React, {useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import React, { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import {Formik} from 'formik';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
+import { Formik } from 'formik';
 
 // components
-import {gap} from '../utils/Spacing';
+import { gap } from '../utils/Spacing';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
-import {useAppTheme} from '../routes/Router';
+import { useAppTheme } from '../routes/Router';
 import axiosInstance from '../axios/AxiosInstance';
-import {forgotPasswordSchema} from '../validation/YupValidationSchema';
+import { forgotPasswordSchema } from '../validation/YupValidationSchema';
 import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
-import {API_STATUS} from '../utils/Constants';
+import { API_STATUS } from '../utils/Constants';
 
-const UpdatePassword = ({navigation, route}) => {
+const UpdatePassword = ({ navigation, route }) => {
   const {
-    colors: {primary, textPrimary},
+    colors: { primary, textPrimary },
   } = useAppTheme();
 
   // for show/hide password by click on icon
@@ -31,7 +31,7 @@ const UpdatePassword = ({navigation, route}) => {
         ...values,
         email: route?.params?.email,
       });
-      Toast.show({type: 'success', text1: res.data.message});
+      Toast.show({ type: 'success', text1: res.data.message });
       setApiLoading(API_STATUS.SUCCESS);
       setTimeout(() => {
         navigation.navigate('Signin');
@@ -47,14 +47,15 @@ const UpdatePassword = ({navigation, route}) => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{ flex: 1 }}>
       {/* for show loading screen after reset password */}
       <LoadingAfterUpdate apiLoading={apiLoading} />
 
-      <View style={{alignItems: 'center', marginTop: 30}}>
+      <View style={{ alignItems: 'center', marginTop: 30 }}>
         <TouchableOpacity
-          style={{...styles.verifyOtpIcon, backgroundColor: primary}}
-          onPress={() => navigation.navigate('Home')}>
+          style={{ ...styles.verifyOtpIcon, backgroundColor: primary }}
+          onPress={() => navigation.navigate('Home')}
+        >
           <Ionicons name="lock-closed" size={50} color="#fff" />
         </TouchableOpacity>
 
@@ -64,32 +65,39 @@ const UpdatePassword = ({navigation, route}) => {
             color: textPrimary,
             marginTop: 5,
             fontWeight: 500,
-          }}>
+          }}
+        >
           Update Password
         </Text>
       </View>
 
-      <View style={{alignItems: 'center', marginTop: 40, marginHorizontal: 20}}>
+      <View
+        style={{ alignItems: 'center', marginTop: 40, marginHorizontal: 20 }}
+      >
         <Text
           style={{
             fontSize: 17,
             fontWeight: '500',
             color: '#333',
             textAlign: 'center',
-          }}>
+          }}
+        >
           Set the new password for your account so you can login and access all
           the features
         </Text>
       </View>
 
-      <View style={{flex: 1, justifyContent: 'center', gap: gap, padding: 20}}>
+      <View
+        style={{ flex: 1, justifyContent: 'center', gap: gap, padding: 20 }}
+      >
         <Formik
-          initialValues={{password: '', confirmPassword: ''}}
+          initialValues={{ password: '', confirmPassword: '' }}
           validationSchema={forgotPasswordSchema}
-          onSubmit={(values, {resetForm}) => {
+          onSubmit={(values, { resetForm }) => {
             handleUpdatePassword(values);
             // resetForm();
-          }}>
+          }}
+        >
           {({
             values,
             touched,
@@ -98,7 +106,7 @@ const UpdatePassword = ({navigation, route}) => {
             handleSubmit,
             handleReset,
           }) => (
-            <View style={{gap: gap}}>
+            <View style={{ gap: gap }}>
               <View>
                 <CustomInput
                   placeholder={'Password'}

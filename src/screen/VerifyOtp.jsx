@@ -1,26 +1,26 @@
-import React, {useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import React, { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons';
 import * as Keychain from 'react-native-keychain';
 
 // components
-import {gap} from '../utils/Spacing';
+import { gap } from '../utils/Spacing';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
-import {useAppTheme} from '../routes/Router';
-import {useDataContext} from '../context/DataContext';
+import { useAppTheme } from '../routes/Router';
+import { useDataContext } from '../context/DataContext';
 import axiosInstance from '../axios/AxiosInstance';
 import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
-import {API_STATUS, LOGIN_PROCESS} from '../utils/Constants';
+import { API_STATUS, LOGIN_PROCESS } from '../utils/Constants';
 
-const VerifyOtp = ({navigation, route}) => {
+const VerifyOtp = ({ navigation, route }) => {
   const {
-    colors: {primary, textPrimary},
+    colors: { primary, textPrimary },
   } = useAppTheme();
 
-  const {setAuthDetails} = useDataContext();
+  const { setAuthDetails } = useDataContext();
 
   const [otp, setOTP] = useState(null);
   const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
@@ -41,11 +41,11 @@ const VerifyOtp = ({navigation, route}) => {
         type: route?.params?.type,
       });
       if (route?.params?.type === 'signup') {
-        const {token, _id: id} = res.data;
+        const { token, _id: id } = res.data;
         await Keychain.setGenericPassword(id, token);
-        setAuthDetails(prev => ({...prev, isLoggedIn: LOGIN_PROCESS.START}));
+        setAuthDetails(prev => ({ ...prev, isLoggedIn: LOGIN_PROCESS.START }));
       } else if (route?.params?.type === 'forgot-password') {
-        navigation.navigate('Update Password', {email: res.data?.email});
+        navigation.navigate('Update Password', { email: res.data?.email });
       }
     } catch (err) {
       setApiLoading(API_STATUS.FAILED);
@@ -64,7 +64,7 @@ const VerifyOtp = ({navigation, route}) => {
         email: route?.params?.email,
         type: route?.params?.type,
       });
-      Toast.show({type: 'success', text1: res.data.message});
+      Toast.show({ type: 'success', text1: res.data.message });
       setApiLoading(API_STATUS.SUCCESS);
     } catch (err) {
       setApiLoading(API_STATUS.FAILED);
@@ -86,15 +86,16 @@ const VerifyOtp = ({navigation, route}) => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{ flex: 1 }}>
       {/* for show loading screen after verifyotp/resend otp */}
       <LoadingAfterUpdate apiLoading={apiLoading} />
 
-      <View style={{alignItems: 'center', marginTop: 30}}>
+      <View style={{ alignItems: 'center', marginTop: 30 }}>
         <TouchableOpacity
-          style={{...styles.verifyOtpIcon, backgroundColor: primary}}
-          onPress={() => navigation.navigate('Home')}>
-          <MaterialIcons name="verified-user" color={'#fff'} size={50} />
+          style={{ ...styles.verifyOtpIcon, backgroundColor: primary }}
+          onPress={() => navigation.navigate('Home')}
+        >
+          <MaterialDesignIcons name="verified-user" color={'#fff'} size={50} />
         </TouchableOpacity>
 
         <Text
@@ -103,19 +104,21 @@ const VerifyOtp = ({navigation, route}) => {
             color: textPrimary,
             marginTop: 5,
             fontWeight: 500,
-          }}>
+          }}
+        >
           OTP Verification
         </Text>
       </View>
 
-      <View style={{alignItems: 'center', marginTop: 40}}>
+      <View style={{ alignItems: 'center', marginTop: 40 }}>
         <Text
           style={{
             fontSize: 17,
             fontWeight: '500',
             color: '#333',
             textAlign: 'center',
-          }}>
+          }}
+        >
           Please Enter The Code Sent To
         </Text>
         <Text
@@ -123,12 +126,15 @@ const VerifyOtp = ({navigation, route}) => {
             fontSize: 17,
             color: '#333',
             textAlign: 'center',
-          }}>
+          }}
+        >
           {secureEmail(route?.params?.email || '')}
         </Text>
       </View>
 
-      <View style={{flex: 1, justifyContent: 'center', gap: gap, padding: 20}}>
+      <View
+        style={{ flex: 1, justifyContent: 'center', gap: gap, padding: 20 }}
+      >
         <CustomInput
           placeholder={'Enter OTP'}
           backgroundColor={'#edeef1'}
@@ -146,9 +152,9 @@ const VerifyOtp = ({navigation, route}) => {
         />
 
         <View style={styles.resendCode}>
-          <Text style={{fontSize: 16}}>Didn't get the code or expire? </Text>
+          <Text style={{ fontSize: 16 }}>Didn't get the code or expire? </Text>
           <TouchableOpacity onPress={resendOtp}>
-            <Text style={{color: primary, fontWeight: '500', fontSize: 16}}>
+            <Text style={{ color: primary, fontWeight: '500', fontSize: 16 }}>
               Click to resend
             </Text>
           </TouchableOpacity>

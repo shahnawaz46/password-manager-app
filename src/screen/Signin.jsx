@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -6,30 +6,30 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 import Toast from 'react-native-toast-message';
-import {Formik} from 'formik';
+import { Formik } from 'formik';
 import * as Keychain from 'react-native-keychain';
 
 // components
-import {gap} from '../utils/Spacing';
+import { gap } from '../utils/Spacing';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
-import {useAppTheme} from '../routes/Router';
+import { useAppTheme } from '../routes/Router';
 import Title from '../components/Title';
-import {useDataContext} from '../context/DataContext';
+import { useDataContext } from '../context/DataContext';
 import axiosInstance from '../axios/AxiosInstance';
-import {singinSchema} from '../validation/YupValidationSchema';
+import { singinSchema } from '../validation/YupValidationSchema';
 import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
-import {API_STATUS, LOGIN_PROCESS} from '../utils/Constants';
+import { API_STATUS, LOGIN_PROCESS } from '../utils/Constants';
 
-const Signin = ({navigation}) => {
+const Signin = ({ navigation }) => {
   const {
-    colors: {primary, textPrimary},
+    colors: { primary, textPrimary },
   } = useAppTheme();
 
-  const {setAuthDetails} = useDataContext();
+  const { setAuthDetails } = useDataContext();
   const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
 
   const handleSignin = async value => {
@@ -39,9 +39,9 @@ const Signin = ({navigation}) => {
 
       // using Keychain instead of asyncLocalStorage because Keychain is secure
       // and Keychain store username and password so here username will be id and password will be token
-      const {token, _id: id} = res.data;
+      const { token, _id: id } = res.data;
       await Keychain.setGenericPassword(id, token);
-      setAuthDetails(prev => ({...prev, isLoggedIn: LOGIN_PROCESS.START}));
+      setAuthDetails(prev => ({ ...prev, isLoggedIn: LOGIN_PROCESS.START }));
     } catch (err) {
       setApiLoading(API_STATUS.FAILED);
       Toast.show({
@@ -51,19 +51,20 @@ const Signin = ({navigation}) => {
       });
 
       if (err?.response?.data?.error === 'User not verified, Please verify') {
-        navigation.navigate('Verify OTP', {email: value.email});
+        navigation.navigate('Verify OTP', { email: value.email });
       }
     }
   };
 
   return (
     <ScrollView
-      contentContainerStyle={{flexGrow: 1}}
-      keyboardShouldPersistTaps={'always'}>
+      contentContainerStyle={{ flexGrow: 1 }}
+      keyboardShouldPersistTaps={'always'}
+    >
       {/* for show loading screen after Signin */}
       <LoadingAfterUpdate apiLoading={apiLoading} backgroundColor="#fff" />
 
-      <SafeAreaView style={{flex: 1}}>
+      <SafeAreaView style={{ flex: 1 }}>
         <Title
           style={{
             fontSize: 28,
@@ -79,11 +80,12 @@ const Signin = ({navigation}) => {
 
           {/* form part */}
           <Formik
-            initialValues={{email: '', password: ''}}
+            initialValues={{ email: '', password: '' }}
             validationSchema={singinSchema}
-            onSubmit={value => handleSignin(value)}>
-            {({values, errors, touched, handleChange, handleSubmit}) => (
-              <View style={{gap: gap}}>
+            onSubmit={value => handleSignin(value)}
+          >
+            {({ values, errors, touched, handleChange, handleSubmit }) => (
+              <View style={{ gap: gap }}>
                 <View>
                   <CustomInput
                     placeholder={'Email'}
@@ -114,7 +116,8 @@ const Signin = ({navigation}) => {
                 </View>
 
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('Forgot Password')}>
+                  onPress={() => navigation.navigate('Forgot Password')}
+                >
                   <Text>Forgot Password?</Text>
                 </TouchableOpacity>
 
@@ -131,7 +134,7 @@ const Signin = ({navigation}) => {
 
         {/* bottom part for redirect to signin */}
         <View style={styles.createNewAccount}>
-          <Text style={{fontSize: 15}}>Don't have an account?</Text>
+          <Text style={{ fontSize: 15 }}>Don't have an account?</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
             <Text
               style={{
@@ -139,7 +142,8 @@ const Signin = ({navigation}) => {
                 fontWeight: '700',
                 marginLeft: 5,
                 fontSize: 15,
-              }}>
+              }}
+            >
               Register
             </Text>
           </TouchableOpacity>
