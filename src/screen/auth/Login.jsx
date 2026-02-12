@@ -13,27 +13,30 @@ import { Formik } from 'formik';
 import * as Keychain from 'react-native-keychain';
 
 // components
-import { gap } from '../utils/Spacing';
-import CustomInput from '../components/CustomInput';
-import CustomButton from '../components/CustomButton';
-import { useAppTheme } from '../routes/Router';
-import Title from '../components/Title';
-import { useDataContext } from '../context/DataContext';
-import axiosInstance from '../axios/AxiosInstance';
-import { singinSchema } from '../validation/YupValidationSchema';
-import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
-import { API_STATUS, LOGIN_PROCESS } from '../utils/Constants';
+import { gap } from '@/utils/Spacing';
+import CustomInput from '@/components/CustomInput';
+import CustomButton from '@/components/CustomButton';
+import { useAppTheme } from '@/routes/Router';
+import Title from '@/components/Title';
+import { useDataContext } from '@/context/DataContext';
+import axiosInstance from '@/axios/AxiosInstance';
+import { singinSchema } from '@/validation/YupValidationSchema';
+import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
+import { API_STATUS, LOGIN_PROCESS } from '@/utils/Constants';
+import { useNavigation } from '@react-navigation/native';
 
-const Signin = ({ navigation }) => {
+const Login = ({ navigation }) => {
   const {
     colors: { primary, textPrimary },
   } = useAppTheme();
+  // const navigation = useNavigation();
 
   const { setAuthDetails } = useDataContext();
   const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
 
-  const handleSignin = async value => {
+  const handleLogin = async value => {
     try {
+      console.log('value:', value);
       setApiLoading(API_STATUS.LOADING);
       const res = await axiosInstance.post('/user/login', value);
 
@@ -42,6 +45,8 @@ const Signin = ({ navigation }) => {
       const { token, _id: id } = res.data;
       await Keychain.setGenericPassword(id, token);
       setAuthDetails(prev => ({ ...prev, isLoggedIn: LOGIN_PROCESS.START }));
+
+      navigation.navigate('HomeScreen');
     } catch (err) {
       setApiLoading(API_STATUS.FAILED);
       Toast.show({
@@ -51,7 +56,7 @@ const Signin = ({ navigation }) => {
       });
 
       if (err?.response?.data?.error === 'User not verified, Please verify') {
-        navigation.navigate('Verify OTP', { email: value.email });
+        navigation.navigate('VerifyOtpScreen', { email: value.email });
       }
     }
   };
@@ -61,7 +66,7 @@ const Signin = ({ navigation }) => {
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps={'always'}
     >
-      {/* for show loading screen after Signin */}
+      {/* for show loading screen after Login */}
       <LoadingAfterUpdate apiLoading={apiLoading} backgroundColor="#fff" />
 
       <SafeAreaView style={{ flex: 1 }}>
@@ -82,7 +87,7 @@ const Signin = ({ navigation }) => {
           <Formik
             initialValues={{ email: '', password: '' }}
             validationSchema={singinSchema}
-            onSubmit={value => handleSignin(value)}
+            onSubmit={value => handleLogin(value)}
           >
             {({ values, errors, touched, handleChange, handleSubmit }) => (
               <View style={{ gap: gap }}>
@@ -116,7 +121,7 @@ const Signin = ({ navigation }) => {
                 </View>
 
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('Forgot Password')}
+                  onPress={() => navigation.navigate('ForgotPasswordScreen')}
                 >
                   <Text>Forgot Password?</Text>
                 </TouchableOpacity>
@@ -132,10 +137,10 @@ const Signin = ({ navigation }) => {
           </Formik>
         </View>
 
-        {/* bottom part for redirect to signin */}
+        {/* bottom part for redirect to Login */}
         <View style={styles.createNewAccount}>
           <Text style={{ fontSize: 15 }}>Don't have an account?</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+          <TouchableOpacity onPress={() => navigation.navigate('SignupScreen')}>
             <Text
               style={{
                 color: primary,
@@ -153,7 +158,7 @@ const Signin = ({ navigation }) => {
   );
 };
 
-export default Signin;
+export default Login;
 
 const styles = StyleSheet.create({
   formContainer: {

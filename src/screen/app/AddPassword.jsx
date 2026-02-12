@@ -1,32 +1,32 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {SafeAreaView, ScrollView, StyleSheet, Text, View} from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
-import {Formik} from 'formik';
+import { Formik } from 'formik';
 
 // for use nanoid in react native we have to install react-native-get-random-values
 import 'react-native-get-random-values';
-import {nanoid} from 'nanoid';
+import { nanoid } from 'nanoid';
 
 // components
-import CustomInput from '../components/CustomInput';
-import CustomButton from '../components/CustomButton';
-import {gap} from '../utils/Spacing';
-import DropDown from '../components/DropDown';
-import {vaultSchema} from '../validation/YupValidationSchema';
-import axiosInstance from '../axios/AxiosInstance';
-import {useDataContext} from '../context/DataContext';
-import {encrypt} from '../utils/EncDec';
-import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
-import {API_STATUS} from '../utils/Constants';
-import {useSearchContext} from '../context/SearchContext';
+import CustomInput from '@/components/CustomInput';
+import CustomButton from '@/components/CustomButton';
+import { gap } from '@/utils/Spacing';
+import DropDown from '@/components/DropDown';
+import { vaultSchema } from '@/validation/YupValidationSchema';
+import axiosInstance from '@/axios/AxiosInstance';
+import { useDataContext } from '@/context/DataContext';
+import { encrypt } from '@/utils/EncDec';
+import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
+import { API_STATUS } from '@/utils/Constants';
+import { useSearchContext } from '@/context/SearchContext';
 
-const AddPassword = ({route}) => {
+const AddPassword = ({ route }) => {
   // data context where passwords are stored
-  const {passwordList, setPasswordList} = useDataContext();
+  const { passwordList, setPasswordList } = useDataContext();
 
   // search context for search/delete/edit search results
   const {
-    searchPasswords: {searching},
+    searchPasswords: { searching },
     editSearchResult,
   } = useSearchContext();
 
@@ -57,7 +57,7 @@ const AddPassword = ({route}) => {
     try {
       const res = await axiosInstance.post('/password', newvalues);
       const category = res.data.category.toLowerCase();
-      const {_id} = res.data;
+      const { _id } = res.data;
 
       // after password added to the database then updating the state
       setPasswordList(prev => ({
@@ -66,14 +66,14 @@ const AddPassword = ({route}) => {
           ...prev.all,
           data: {
             ...prev.all.data,
-            vault: [{_id, ...values}, ...prev.all.data.vault],
+            vault: [{ _id, ...values }, ...prev.all.data.vault],
           },
         },
         [category]: {
           ...prev[category],
           data: {
             ...prev[category].data,
-            vault: [{_id, ...values}, ...prev[category].data.vault],
+            vault: [{ _id, ...values }, ...prev[category].data.vault],
           },
         },
         count: {
@@ -87,7 +87,11 @@ const AddPassword = ({route}) => {
       resetFormCB();
 
       setApiLoading(API_STATUS.SUCCESS);
-      Toast.show({type: 'success', text1: 'Successfully Added', topOffset: 25});
+      Toast.show({
+        type: 'success',
+        text1: 'Successfully Added',
+        topOffset: 25,
+      });
     } catch (err) {
       setApiLoading(API_STATUS.FAILED);
       Toast.show({
@@ -131,7 +135,7 @@ const AddPassword = ({route}) => {
         ...newvalues,
       });
 
-      const {_id} = res.data;
+      const { _id } = res.data;
       const oldCategory = initialState.category.toLowerCase();
       const updatedCategory = res.data.category.toLowerCase();
 
@@ -141,7 +145,7 @@ const AddPassword = ({route}) => {
         data: {
           ...passwordList.all.data,
           vault: passwordList.all.data.vault.map(item =>
-            item._id === idRef.current ? {_id, ...values} : item,
+            item._id === idRef.current ? { _id, ...values } : item,
           ),
         },
       };
@@ -164,7 +168,7 @@ const AddPassword = ({route}) => {
             data: {
               ...passwordList[updatedCategory].data,
               vault: [
-                {_id, ...values},
+                { _id, ...values },
                 ...passwordList[updatedCategory].data.vault,
               ],
             },
@@ -182,18 +186,18 @@ const AddPassword = ({route}) => {
             data: {
               ...passwordList[oldCategory].data,
               vault: passwordList[oldCategory].data.vault.map(item =>
-                item._id === idRef.current ? {_id, ...values} : item,
+                item._id === idRef.current ? { _id, ...values } : item,
               ),
             },
           },
         };
       }
 
-      setPasswordList(prev => ({...prev, all, ...updated}));
+      setPasswordList(prev => ({ ...prev, all, ...updated }));
 
       // if user search any vault/password and then edit search result then i also have to edit data from search result state
       if (searching) {
-        editSearchResult({_id, ...values});
+        editSearchResult({ _id, ...values });
       }
 
       // here i am not calling resetForm callback function like i am doing inside handlePassword
@@ -227,7 +231,7 @@ const AddPassword = ({route}) => {
   // so i have updating the initialState with value that i am getting from route.param
   useEffect(() => {
     if (route?.params) {
-      const {_id, ...rest} = route.params;
+      const { _id, ...rest } = route.params;
       idRef.current = _id;
       setInitialState(rest);
     }
@@ -235,12 +239,13 @@ const AddPassword = ({route}) => {
 
   return (
     <ScrollView
-      contentContainerStyle={{flexGrow: 1}}
-      keyboardShouldPersistTaps={'always'}>
+      contentContainerStyle={{ flexGrow: 1 }}
+      keyboardShouldPersistTaps={'always'}
+    >
       {/* for show loading screen after add new password/details */}
       <LoadingAfterUpdate apiLoading={apiLoading} />
 
-      <SafeAreaView style={{flex: 1}}>
+      <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.formContainer}>
           <Text style={styles.formHeading}>Add New Password</Text>
 
@@ -248,13 +253,14 @@ const AddPassword = ({route}) => {
             initialValues={initialState}
             enableReinitialize
             validationSchema={vaultSchema}
-            onSubmit={(values, {resetForm}) => {
+            onSubmit={(values, { resetForm }) => {
               if (idRef.current) {
                 handlePasswordEdit(values);
               } else {
                 handlePassword(values, resetForm);
               }
-            }}>
+            }}
+          >
             {({
               values,
               errors,
@@ -292,7 +298,8 @@ const AddPassword = ({route}) => {
                       flexDirection: 'row',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                    }}>
+                    }}
+                  >
                     <CustomInput
                       value={values.password}
                       placeholder={'Enter Password'}

@@ -5,13 +5,13 @@ import Toast from 'react-native-toast-message';
 import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons';
 
 // components
-import { gap } from '../utils/Spacing';
-import CustomInput from '../components/CustomInput';
-import CustomButton from '../components/CustomButton';
-import { useAppTheme } from '../routes/Router';
-import axiosInstance from '../axios/AxiosInstance';
-import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
-import { API_STATUS } from '../utils/Constants';
+import { gap } from '@/utils/Spacing';
+import CustomInput from '@/components/CustomInput';
+import CustomButton from '@/components/CustomButton';
+import { useAppTheme } from '@/routes/Router';
+import axiosInstance from '@/axios/AxiosInstance';
+import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
+import { API_STATUS } from '@/utils/Constants';
 
 const ForgotPassword = ({ navigation }) => {
   const {
@@ -39,7 +39,10 @@ const ForgotPassword = ({ navigation }) => {
       Toast.show({ type: 'success', text1: res.data.message });
       setApiLoading(API_STATUS.SUCCESS);
       setTimeout(() => {
-        navigation.navigate('Verify OTP', { email, type: 'forgot-password' });
+        navigation.navigate('VerifyOtpScreen', {
+          email,
+          type: 'forgot-password',
+        });
       }, 500);
     } catch (err) {
       setApiLoading(API_STATUS.FAILED);
@@ -59,7 +62,7 @@ const ForgotPassword = ({ navigation }) => {
       <View style={{ alignItems: 'center', marginTop: 30 }}>
         <TouchableOpacity
           style={{ ...styles.verifyOtpIcon, backgroundColor: primary }}
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate('HomeScreen')}
         >
           <MaterialDesignIcons name="verified-user" color={'#fff'} size={50} />
         </TouchableOpacity>

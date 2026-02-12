@@ -117,7 +117,7 @@ const AllPasswords = ({
   };
 
   const editVault = item => {
-    navigation.navigate('Add Password', item);
+    navigation.navigate('AddPasswordScreen', item);
   };
 
   // pagination

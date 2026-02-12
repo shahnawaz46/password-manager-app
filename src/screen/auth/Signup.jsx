@@ -12,15 +12,15 @@ import Toast from 'react-native-toast-message';
 import { Formik } from 'formik';
 
 // components
-import { gap } from '../utils/Spacing';
-import CustomInput from '../components/CustomInput';
-import CustomButton from '../components/CustomButton';
-import { useAppTheme } from '../routes/Router';
-import Title from '../components/Title';
-import axiosInstance from '../axios/AxiosInstance';
-import { singupSchema } from '../validation/YupValidationSchema';
-import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
-import { API_STATUS } from '../utils/Constants';
+import { gap } from '@/utils/Spacing';
+import CustomInput from '@/components/CustomInput';
+import CustomButton from '@/components/CustomButton';
+import { useAppTheme } from '@/routes/Router';
+import Title from '@/components/Title';
+import axiosInstance from '@/axios/AxiosInstance';
+import { singupSchema } from '@/validation/YupValidationSchema';
+import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
+import { API_STATUS } from '@/utils/Constants';
 
 const Signup = ({ navigation }) => {
   const {
@@ -35,7 +35,10 @@ const Signup = ({ navigation }) => {
     try {
       setApiLoading(API_STATUS.LOADING);
       await axiosInstance.post('/user/register', value);
-      navigation.navigate('Verify OTP', { email: value.email, type: 'signup' });
+      navigation.navigate('VerifyOtpScreen', {
+        email: value.email,
+        type: 'signup',
+      });
     } catch (err) {
       setApiLoading(API_STATUS.FAILED);
       Toast.show({
@@ -155,10 +158,10 @@ const Signup = ({ navigation }) => {
           </Formik>
         </View>
 
-        {/* bottom part for redirect to signin */}
+        {/* bottom part for redirect to Login */}
         <View style={styles.alreadyAccount}>
           <Text style={{ fontSize: 15 }}>Already have an account?</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Signin')}>
+          <TouchableOpacity onPress={() => navigation.navigate('LoginScreen')}>
             <Text
               style={{
                 color: primary,

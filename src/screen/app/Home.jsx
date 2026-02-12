@@ -10,13 +10,13 @@ import {
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 
 // components
-import { useAppTheme } from '../routes/Router';
-import AllPasswords from '../components/AllPasswords';
-import { gap } from '../utils/Spacing';
-import { useDataContext } from '../context/DataContext';
-import Title from '../components/Title';
-import { API_STATUS } from '../utils/Constants';
-import { initialState, useSearchContext } from '../context/SearchContext';
+import { useAppTheme } from '@/routes/Router';
+import AllPasswords from '@/components/AllPasswords';
+import { gap } from '@/utils/Spacing';
+import { useDataContext } from '@/context/DataContext';
+import Title from '@/components/Title';
+import { API_STATUS } from '@/utils/Constants';
+import { initialState, useSearchContext } from '@/context/SearchContext';
 
 const Home = ({ navigation }) => {
   const {
@@ -67,12 +67,12 @@ const Home = ({ navigation }) => {
           name="add-outline"
           size={40}
           color={primary}
-          onPress={() => navigation.navigate('Add Password')}
+          onPress={() => navigation.navigate('AddPasswordScreen')}
         />
       </View>
 
       {/* user details (like image and name with welcome message) */}
-      <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+      <TouchableOpacity onPress={() => navigation.navigate('ProfileScreen')}>
         <View style={styles.userContainer}>
           <Image
             source={{

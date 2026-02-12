@@ -6,14 +6,14 @@ import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-
 import * as Keychain from 'react-native-keychain';
 
 // components
-import { gap } from '../utils/Spacing';
-import CustomInput from '../components/CustomInput';
-import CustomButton from '../components/CustomButton';
-import { useAppTheme } from '../routes/Router';
-import { useDataContext } from '../context/DataContext';
-import axiosInstance from '../axios/AxiosInstance';
-import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
-import { API_STATUS, LOGIN_PROCESS } from '../utils/Constants';
+import { gap } from '@/utils/Spacing';
+import CustomInput from '@/components/CustomInput';
+import CustomButton from '@/components/CustomButton';
+import { useAppTheme } from '@/routes/Router';
+import { useDataContext } from '@/context/DataContext';
+import axiosInstance from '@/axios/AxiosInstance';
+import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
+import { API_STATUS, LOGIN_PROCESS } from '@/utils/Constants';
 
 const VerifyOtp = ({ navigation, route }) => {
   const {
@@ -45,7 +45,7 @@ const VerifyOtp = ({ navigation, route }) => {
         await Keychain.setGenericPassword(id, token);
         setAuthDetails(prev => ({ ...prev, isLoggedIn: LOGIN_PROCESS.START }));
       } else if (route?.params?.type === 'forgot-password') {
-        navigation.navigate('Update Password', { email: res.data?.email });
+        navigation.navigate('UpdatePasswordScreen', { email: res.data?.email });
       }
     } catch (err) {
       setApiLoading(API_STATUS.FAILED);
@@ -75,7 +75,7 @@ const VerifyOtp = ({ navigation, route }) => {
       });
 
       if (err?.response?.data?.step === 'redirect') {
-        navigation.navigate('Signin');
+        navigation.navigate('LoginScreen');
       }
     }
   };
@@ -93,7 +93,7 @@ const VerifyOtp = ({ navigation, route }) => {
       <View style={{ alignItems: 'center', marginTop: 30 }}>
         <TouchableOpacity
           style={{ ...styles.verifyOtpIcon, backgroundColor: primary }}
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate('HomeScreen')}
         >
           <MaterialDesignIcons name="verified-user" color={'#fff'} size={50} />
         </TouchableOpacity>

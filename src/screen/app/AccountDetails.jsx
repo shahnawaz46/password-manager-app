@@ -7,15 +7,15 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { Formik } from 'formik';
 
 // components
-import { useDataContext } from '../context/DataContext';
-import { useAppTheme } from '../routes/Router';
-import { gap } from '../utils/Spacing';
-import CustomInput2 from '../components/CustomInput2';
-import CustomButton from '../components/CustomButton';
-import axiosInstance from '../axios/AxiosInstance';
-import { accountUpdateSchema } from '../validation/YupValidationSchema';
-import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
-import { API_STATUS } from '../utils/Constants';
+import { useDataContext } from '@/context/DataContext';
+import { useAppTheme } from '@/routes/Router';
+import { gap } from '@/utils/Spacing';
+import CustomInput2 from '@/components/CustomInput2';
+import CustomButton from '@/components/CustomButton';
+import axiosInstance from '@/axios/AxiosInstance';
+import { accountUpdateSchema } from '@/validation/YupValidationSchema';
+import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
+import { API_STATUS } from '@/utils/Constants';
 
 const data = [
   { label: 'Male', value: 'Male' },
@@ -110,7 +110,7 @@ const AccountDetails = ({ navigation }) => {
       <View style={styles.topContainer}>
         <TouchableOpacity
           style={styles.backIcon}
-          onPress={() => navigation.navigate('Profile')}
+          onPress={() => navigation.navigate('ProfileScreen')}
         >
           <Ionicons name="chevron-back-outline" color={textPrimary} size={22} />
         </TouchableOpacity>

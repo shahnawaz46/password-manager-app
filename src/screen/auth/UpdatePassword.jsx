@@ -6,14 +6,14 @@ import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { Formik } from 'formik';
 
 // components
-import { gap } from '../utils/Spacing';
-import CustomInput from '../components/CustomInput';
-import CustomButton from '../components/CustomButton';
-import { useAppTheme } from '../routes/Router';
-import axiosInstance from '../axios/AxiosInstance';
-import { forgotPasswordSchema } from '../validation/YupValidationSchema';
-import LoadingAfterUpdate from '../components/LoadingAfterUpdate';
-import { API_STATUS } from '../utils/Constants';
+import { gap } from '@/utils/Spacing';
+import CustomInput from '@/components/CustomInput';
+import CustomButton from '@/components/CustomButton';
+import { useAppTheme } from '@/routes/Router';
+import axiosInstance from '@/axios/AxiosInstance';
+import { forgotPasswordSchema } from '@/validation/YupValidationSchema';
+import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
+import { API_STATUS } from '@/utils/Constants';
 
 const UpdatePassword = ({ navigation, route }) => {
   const {
@@ -34,7 +34,7 @@ const UpdatePassword = ({ navigation, route }) => {
       Toast.show({ type: 'success', text1: res.data.message });
       setApiLoading(API_STATUS.SUCCESS);
       setTimeout(() => {
-        navigation.navigate('Signin');
+        navigation.navigate('LoginScreen');
       }, 500);
     } catch (err) {
       setApiLoading(API_STATUS.FAILED);
@@ -54,7 +54,7 @@ const UpdatePassword = ({ navigation, route }) => {
       <View style={{ alignItems: 'center', marginTop: 30 }}>
         <TouchableOpacity
           style={{ ...styles.verifyOtpIcon, backgroundColor: primary }}
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate('HomeScreen')}
         >
           <Ionicons name="lock-closed" size={50} color="#fff" />
         </TouchableOpacity>

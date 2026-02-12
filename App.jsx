@@ -5,8 +5,8 @@ import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 
 // components
 import DataContextProvider from './src/context/DataContext';
-import Router from './src/routes/Router';
 import SearchContextProvider from './src/context/SearchContext';
+import NavigationContainer from '@/navigation/NavigationContainer';
 
 const toastConfig = {
   success: props => (
@@ -45,10 +45,10 @@ const App = () => {
       <StatusBar />
       <DataContextProvider>
         <SearchContextProvider>
-          <Router />
+          <NavigationContainer />
         </SearchContextProvider>
+        <Toast config={toastConfig} />
       </DataContextProvider>
-      <Toast config={toastConfig} />
     </>
   );
 };

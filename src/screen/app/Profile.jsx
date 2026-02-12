@@ -6,10 +6,10 @@ import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-
 import Toast from 'react-native-toast-message';
 
 // components
-import { useDataContext } from '../context/DataContext';
-import { useAppTheme } from '../routes/Router';
-import { gap } from '../utils/Spacing';
-import ProfileItem from '../components/ProfileItem';
+import { useDataContext } from '@/context/DataContext';
+import { useAppTheme } from '@/routes/Router';
+import { gap } from '@/utils/Spacing';
+import ProfileItem from '@/components/ProfileItem';
 
 const Profile = ({ navigation }) => {
   const {
@@ -48,7 +48,7 @@ const Profile = ({ navigation }) => {
       <View style={styles.topContainer}>
         <TouchableOpacity
           style={styles.backIcon}
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate('HomeScreen')}
         >
           <Ionicons name="chevron-back-outline" color={textPrimary} size={22} />
         </TouchableOpacity>
@@ -84,7 +84,7 @@ const Profile = ({ navigation }) => {
           title={'My Account'}
           subTitle={'Changes to your account details'}
           icon={<Ionicons name="person-outline" size={20} color={primary} />}
-          onPress={() => navigation.navigate('Personal Details')}
+          onPress={() => navigation.navigate('AccountDetails')}
         />
 
         {/* <ProfileItem
