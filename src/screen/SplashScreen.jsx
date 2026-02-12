@@ -1,62 +1,26 @@
-import PageWrapper from '@/components/wrapper/PageWrapper';
-import DotLoading from '@/components/loader/DotLoading';
 import { StyleSheet, View } from 'react-native';
-import { useEffect, useState } from 'react';
-import * as Keychain from 'react-native-keychain';
-import { useDataContext } from '@/context/DataContext';
-import { LOGIN_PROCESS } from '@/utils/Constants';
-import axiosInstance from '@/axios/AxiosInstance';
+import { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
+// src
+import PageWrapper from '@/components/wrapper/PageWrapper';
+import DotLoading from '@/components/loader/DotLoading';
+import { useAuthContext } from '@/hooks/useAuthContext';
+
 const SplashScreen = () => {
-  const {
-    authDetails: { isLoggedIn },
-    setAuthDetails,
-    setPasswordList,
-    logout,
-  } = useDataContext();
-
+  const { isAuthenticated } = useAuthContext();
   const navigation = useNavigation();
-  const [loading, setLoading] = useState(true);
-
-  const getUserDetails = async () => {
-    try {
-      // logout();
-      const isToken = await Keychain.getGenericPassword();
-
-      if (!isToken) {
-        return navigation.navigate('LoginScreen');
-      }
-
-      if (isToken?.password) {
-        const [profileRes, countRes] = await Promise.all([
-          axiosInstance.get('/user/profile'),
-          axiosInstance.get('/count'),
-        ]);
-
-        setAuthDetails({
-          isLoggedIn: LOGIN_PROCESS.COMPLETE,
-          userDetails: profileRes.data,
-        });
-
-        setPasswordList(prev => ({
-          ...prev,
-          count: countRes.data,
-        }));
-      }
-
-      navigation.navigate('HomeScreen');
-    } catch (err) {
-      console.log(err?.response?.data?.error || err?.message);
-    }
-
-    setLoading(false);
-  };
 
   useEffect(() => {
-    // if isLoggedin value is 'COMPLETE' then it means i have already fetched the data so i am not calling getUserDetails() function again.
-    isLoggedIn !== LOGIN_PROCESS.COMPLETE && getUserDetails();
-  }, [isLoggedIn]);
+    // bydefault isAuthenticated will be null
+    // and only be true or false after getSession
+    if (isAuthenticated) {
+      return navigation.navigate('HomeScreen');
+    }
+    if (isAuthenticated === false) {
+      return navigation.navigate('LoginScreen');
+    }
+  }, [isAuthenticated]);
 
   return (
     <PageWrapper>

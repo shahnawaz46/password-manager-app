@@ -17,6 +17,7 @@ import { useDataContext } from '@/context/DataContext';
 import Title from '@/components/Title';
 import { API_STATUS } from '@/utils/Constants';
 import { initialState, useSearchContext } from '@/context/SearchContext';
+import { useAuthContext } from '@/hooks/useAuthContext';
 
 const Home = ({ navigation }) => {
   const {
@@ -24,7 +25,9 @@ const Home = ({ navigation }) => {
   } = useAppTheme();
 
   // data context where passwords are stored
-  const { passwordList, authDetails, fetchPassword } = useDataContext();
+  const { user } = useAuthContext();
+
+  const { passwordList, fetchPassword } = useDataContext();
 
   // search context for search/delete/edit search results
   const { searchPasswords, setSearchPasswords, onSearch } = useSearchContext();
@@ -77,7 +80,7 @@ const Home = ({ navigation }) => {
           <Image
             source={{
               uri:
-                authDetails.userDetails?.profileImage ||
+                user?.profileImage ||
                 'https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_1280.png',
             }}
             style={styles.userImage}
@@ -86,7 +89,7 @@ const Home = ({ navigation }) => {
           <View>
             <Text style={{ fontSize: 14 }}>Welcome Back,</Text>
             <Text style={{ color: textPrimary, fontSize: 16 }}>
-              {authDetails.userDetails?.fullName}
+              {user?.fullName}
             </Text>
           </View>
         </View>

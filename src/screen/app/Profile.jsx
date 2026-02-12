@@ -10,37 +10,14 @@ import { useDataContext } from '@/context/DataContext';
 import { useAppTheme } from '@/routes/Router';
 import { gap } from '@/utils/Spacing';
 import ProfileItem from '@/components/ProfileItem';
+import { useAuthContext } from '@/hooks/useAuthContext';
 
 const Profile = ({ navigation }) => {
   const {
     colors: { primary, textPrimary },
   } = useAppTheme();
-  const { authDetails, setAuthDetails, logout } = useDataContext();
-
-  const uploadImage = async () => {
-    try {
-      const result = await ImagePicker.openPicker({
-        cropping: true,
-      });
-      setAuthDetails(prev => ({
-        ...prev,
-        userDetails: { ...prev.userDetails, image: result.path },
-      }));
-    } catch (err) {
-      if (err?.message === 'User did not grant camera permission.') {
-        return Toast.show({
-          type: 'error',
-          text1: 'Please grant camera permission',
-          topOffset: 25,
-        });
-      }
-      Toast.show({
-        type: 'error',
-        text1: err?.response?.data?.error || err?.message,
-        topOffset: 25,
-      });
-    }
-  };
+  const { user } = useAuthContext();
+  const { logout } = useDataContext();
 
   return (
     <View style={{ flex: 1, padding: gap }}>
@@ -63,7 +40,7 @@ const Profile = ({ navigation }) => {
         <Image
           source={{
             uri:
-              authDetails.userDetails?.profileImage ||
+              user?.profileImage ||
               'https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_1280.png',
           }}
           style={styles.profileImage}
@@ -73,9 +50,9 @@ const Profile = ({ navigation }) => {
       {/* user name and email */}
       <View style={styles.userDetails_Container}>
         <Text style={{ color: textPrimary, fontSize: 23, fontWeight: 500 }}>
-          {authDetails.userDetails?.fullName}
+          {user?.fullName}
         </Text>
-        <Text style={{ fontSize: 17 }}>{authDetails.userDetails?.email}</Text>
+        <Text style={{ fontSize: 17 }}>{user?.email}</Text>
       </View>
 
       {/* bottom container */}

@@ -16,6 +16,7 @@ import axiosInstance from '@/axios/AxiosInstance';
 import { accountUpdateSchema } from '@/validation/YupValidationSchema';
 import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
 import { API_STATUS } from '@/utils/Constants';
+import { useAuthContext } from '@/hooks/useAuthContext';
 
 const data = [
   { label: 'Male', value: 'Male' },
@@ -28,7 +29,8 @@ const AccountDetails = ({ navigation }) => {
     colors: { textPrimary },
   } = useAppTheme();
 
-  const { authDetails, setAuthDetails } = useDataContext();
+  const { user } = useAuthContext();
+  const { setAuthDetails } = useDataContext();
 
   const [accountDetails, setAccountDetails] = useState({});
   const [profileImage, setProfileImage] = useState({});
@@ -98,8 +100,8 @@ const AccountDetails = ({ navigation }) => {
   };
 
   useEffect(() => {
-    setAccountDetails({ ...authDetails.userDetails });
-  }, [authDetails]);
+    setAccountDetails({ ...user });
+  }, [user]);
 
   return (
     <View style={{ flex: 1, padding: gap }}>

@@ -23,7 +23,8 @@ import axiosInstance from '@/axios/AxiosInstance';
 import { singinSchema } from '@/validation/YupValidationSchema';
 import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
 import { API_STATUS, LOGIN_PROCESS } from '@/utils/Constants';
-import { useNavigation } from '@react-navigation/native';
+import { NavigationState, useNavigation } from '@react-navigation/native';
+import { useAuthContext } from '@/hooks/useAuthContext';
 
 const Login = ({ navigation }) => {
   const {
@@ -32,19 +33,23 @@ const Login = ({ navigation }) => {
   // const navigation = useNavigation();
 
   const { setAuthDetails } = useDataContext();
+  const { userLogin } = useAuthContext();
   const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
 
   const handleLogin = async value => {
     try {
       console.log('value:', value);
       setApiLoading(API_STATUS.LOADING);
-      const res = await axiosInstance.post('/user/login', value);
+      // const res = await axiosInstance.post('/user/login', value);
+      // console.log('handleLogin: ', res.data);
 
-      // using Keychain instead of asyncLocalStorage because Keychain is secure
-      // and Keychain store username and password so here username will be id and password will be token
-      const { token, _id: id } = res.data;
-      await Keychain.setGenericPassword(id, token);
-      setAuthDetails(prev => ({ ...prev, isLoggedIn: LOGIN_PROCESS.START }));
+      // // using Keychain instead of asyncLocalStorage because Keychain is secure
+      // // and Keychain store username and password so here username will be id and password will be token
+      // const { token, _id: id } = res.data;
+      // await Keychain.setGenericPassword(id, token);
+      // setAuthDetails(prev => ({ ...prev, isLoggedIn: LOGIN_PROCESS.START }));
+
+      await userLogin(value);
 
       navigation.navigate('HomeScreen');
     } catch (err) {

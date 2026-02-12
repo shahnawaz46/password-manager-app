@@ -7,6 +7,7 @@ import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 import DataContextProvider from './src/context/DataContext';
 import SearchContextProvider from './src/context/SearchContext';
 import NavigationContainer from '@/navigation/NavigationContainer';
+import AuthProvider from '@/providers/AuthProvider';
 
 const toastConfig = {
   success: props => (
@@ -43,12 +44,14 @@ const App = () => {
   return (
     <>
       <StatusBar />
-      <DataContextProvider>
-        <SearchContextProvider>
-          <NavigationContainer />
-        </SearchContextProvider>
-        <Toast config={toastConfig} />
-      </DataContextProvider>
+      <AuthProvider>
+        <DataContextProvider>
+          <SearchContextProvider>
+            <NavigationContainer />
+          </SearchContextProvider>
+          <Toast config={toastConfig} />
+        </DataContextProvider>
+      </AuthProvider>
     </>
   );
 };
