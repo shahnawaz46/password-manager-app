@@ -7,7 +7,7 @@ import Toast from 'react-native-toast-message';
 
 // components
 import { useDataContext } from '@/context/DataContext';
-import { useAppTheme } from '@/routes/Router';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { gap } from '@/utils/Spacing';
 import ProfileItem from '@/components/ProfileItem';
 import { useAuthContext } from '@/hooks/useAuthContext';

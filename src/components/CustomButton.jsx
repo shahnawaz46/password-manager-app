@@ -1,8 +1,8 @@
 import React from 'react';
-import {Text, TouchableOpacity} from 'react-native';
+import { Text, TouchableOpacity } from 'react-native';
 
 // components
-import {useAppTheme} from '../routes/Router';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 const CustomButton = ({
   title,
@@ -15,7 +15,7 @@ const CustomButton = ({
   disabled = false,
 }) => {
   const {
-    colors: {primary},
+    colors: { primary },
   } = useAppTheme();
   return (
     <TouchableOpacity
@@ -28,8 +28,9 @@ const CustomButton = ({
         justifyContent: 'center',
       }}
       disabled={disabled}
-      onPress={onPress}>
-      <Text style={{fontSize, color: '#fff', opacity: disabled ? 0.6 : 1}}>
+      onPress={onPress}
+    >
+      <Text style={{ fontSize, color: '#fff', opacity: disabled ? 0.6 : 1 }}>
         {title}
       </Text>
     </TouchableOpacity>

@@ -9,9 +9,9 @@ import * as Keychain from 'react-native-keychain';
 import { gap } from '@/utils/Spacing';
 import CustomInput from '@/components/CustomInput';
 import CustomButton from '@/components/CustomButton';
-import { useAppTheme } from '@/routes/Router';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useDataContext } from '@/context/DataContext';
-import axiosInstance from '@/axios/AxiosInstance';
+import axiosInstance from '@/api/axiosInstance';
 import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
 import { API_STATUS, LOGIN_PROCESS } from '@/utils/Constants';
 

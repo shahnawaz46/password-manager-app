@@ -1,19 +1,19 @@
-import React, {createContext, useContext, useState} from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 // components
-import {API_STATUS} from '../utils/Constants';
-import axiosInstance from '../axios/AxiosInstance';
-import {gettingData} from '../utils/EncDec';
+import { API_STATUS } from '../utils/Constants';
+import axiosInstance from '@/api/axiosInstance';
+import { gettingData } from '../utils/EncDec';
 
 const SearchContext = createContext();
 
 export const initialState = {
   status: API_STATUS.IDLE,
   searching: false,
-  data: {vault: []},
+  data: { vault: [] },
 };
 
-const SearchContextProvider = ({children}) => {
+const SearchContextProvider = ({ children }) => {
   // state for store password that i am getting from passwordList(context)
   const [searchPasswords, setSearchPasswords] = useState(initialState);
 
@@ -51,12 +51,12 @@ const SearchContextProvider = ({children}) => {
         `/password/search?category=${category}&search=${query}`,
       );
 
-      const {next, password} = res.data;
+      const { next, password } = res.data;
       const newPasswordData = await gettingData(password);
       setSearchPasswords(prev => ({
         ...prev,
         status: API_STATUS.SUCCESS,
-        data: {next, vault: newPasswordData},
+        data: { next, vault: newPasswordData },
       }));
     } catch (err) {
       console.log(err?.response?.data?.error || err?.message);
@@ -97,11 +97,11 @@ const SearchContextProvider = ({children}) => {
     try {
       const res = await axiosInstance.get(nextURL);
 
-      const {next, password} = res.data;
+      const { next, password } = res.data;
       const newPasswordData = await gettingData(password);
       setSearchPasswords(prev => ({
         ...prev,
-        data: {next, vault: [...prev.data.vault, ...newPasswordData]},
+        data: { next, vault: [...prev.data.vault, ...newPasswordData] },
       }));
     } catch (err) {
       console.log(err?.response?.data?.error || err?.message);
@@ -121,7 +121,8 @@ const SearchContextProvider = ({children}) => {
         deleteSearchResult,
         editSearchResult,
         fetchMoreSearchData,
-      }}>
+      }}
+    >
       {children}
     </SearchContext.Provider>
   );

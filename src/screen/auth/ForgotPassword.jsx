@@ -8,8 +8,8 @@ import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-
 import { gap } from '@/utils/Spacing';
 import CustomInput from '@/components/CustomInput';
 import CustomButton from '@/components/CustomButton';
-import { useAppTheme } from '@/routes/Router';
-import axiosInstance from '@/axios/AxiosInstance';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import axiosInstance from '@/api/axiosInstance';
 import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
 import { API_STATUS } from '@/utils/Constants';
 

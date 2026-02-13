@@ -21,11 +21,11 @@ import {
 import { useNavigation } from '@react-navigation/native';
 
 // components
-import { useAppTheme } from '../routes/Router';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import CustomButton from './CustomButton';
 import { gap } from '../utils/Spacing';
 import Loading from './Loading';
-import axiosInstance from '../axios/AxiosInstance';
+import axiosInstance from '@/api/axiosInstance';
 import { useDataContext } from '../context/DataContext';
 import { API_STATUS } from '../utils/Constants';
 import LoadingAfterUpdate from './LoadingAfterUpdate';

@@ -10,7 +10,7 @@ import {
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 
 // components
-import { useAppTheme } from '@/routes/Router';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import AllPasswords from '@/components/AllPasswords';
 import { gap } from '@/utils/Spacing';
 import { useDataContext } from '@/context/DataContext';

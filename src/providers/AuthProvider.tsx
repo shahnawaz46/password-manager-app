@@ -3,7 +3,7 @@ import * as Keychain from 'react-native-keychain';
 
 // src
 import { AuthContext } from '@/hooks/useAuthContext';
-import axiosInstance from '@/axios/AxiosInstance';
+import axiosInstance from '@/api/axiosInstance';
 
 // types/interface
 import type { ReactNode } from 'react';

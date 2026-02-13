@@ -3,7 +3,7 @@ import * as Keychain from 'react-native-keychain';
 import Toast from 'react-native-toast-message';
 
 // components
-import axiosInstance from '../axios/AxiosInstance';
+import axiosInstance from '@/api/axiosInstance';
 import { gettingData } from '../utils/EncDec';
 import { API_STATUS, LOGIN_PROCESS } from '../utils/Constants';
 

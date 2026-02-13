@@ -8,11 +8,11 @@ import { Formik } from 'formik';
 
 // components
 import { useDataContext } from '@/context/DataContext';
-import { useAppTheme } from '@/routes/Router';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { gap } from '@/utils/Spacing';
 import CustomInput2 from '@/components/CustomInput2';
 import CustomButton from '@/components/CustomButton';
-import axiosInstance from '@/axios/AxiosInstance';
+import axiosInstance from '@/api/axiosInstance';
 import { accountUpdateSchema } from '@/validation/YupValidationSchema';
 import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
 import { API_STATUS } from '@/utils/Constants';
