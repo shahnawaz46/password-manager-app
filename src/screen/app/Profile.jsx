@@ -1,12 +1,9 @@
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
-import ImagePicker from 'react-native-image-crop-picker';
 import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons';
-import Toast from 'react-native-toast-message';
 
 // components
-import { useDataContext } from '@/context/DataContext';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { gap } from '@/utils/Spacing';
 import ProfileItem from '@/components/ProfileItem';
@@ -16,8 +13,7 @@ const Profile = ({ navigation }) => {
   const {
     colors: { primary, textPrimary },
   } = useAppTheme();
-  const { user } = useAuthContext();
-  const { logout } = useDataContext();
+  const { user, logout } = useAuthContext();
 
   return (
     <View style={{ flex: 1, padding: gap }}>

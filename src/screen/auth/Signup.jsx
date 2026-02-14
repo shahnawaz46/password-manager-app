@@ -17,24 +17,29 @@ import CustomInput from '@/components/CustomInput';
 import CustomButton from '@/components/CustomButton';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import Title from '@/components/Title';
-import axiosInstance from '@/api/axiosInstance';
 import { singupSchema } from '@/validation/YupValidationSchema';
 import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
 import { API_STATUS } from '@/utils/Constants';
+import { useMutation } from '@tanstack/react-query';
+import { register } from '@/api/auth.api';
 
 const Signup = ({ navigation }) => {
   const {
     colors: { primary, textPrimary },
   } = useAppTheme();
-
   // for show/hide password by click on icon
   const [secureField, setSecureField] = useState(true);
   const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
 
+  const { mutateAsync: registerMutateAsync, isPending } = useMutation({
+    mutationFn: register,
+  });
+
   const handleSignup = async value => {
     try {
       setApiLoading(API_STATUS.LOADING);
-      await axiosInstance.post('/user/register', value);
+      await registerMutateAsync(value);
+
       navigation.navigate('VerifyOtpScreen', {
         email: value.email,
         type: 'signup',

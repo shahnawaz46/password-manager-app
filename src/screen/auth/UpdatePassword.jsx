@@ -10,28 +10,32 @@ import { gap } from '@/utils/Spacing';
 import CustomInput from '@/components/CustomInput';
 import CustomButton from '@/components/CustomButton';
 import { useAppTheme } from '@/hooks/useAppTheme';
-import axiosInstance from '@/api/axiosInstance';
 import { forgotPasswordSchema } from '@/validation/YupValidationSchema';
 import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
 import { API_STATUS } from '@/utils/Constants';
+import { useMutation } from '@tanstack/react-query';
+import { updatePassword } from '@/api/auth.api';
 
 const UpdatePassword = ({ navigation, route }) => {
   const {
     colors: { primary, textPrimary },
   } = useAppTheme();
-
   // for show/hide password by click on icon
   const [secureField, setSecureField] = useState(true);
   const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
 
+  const { mutateAsync: updatePasswordMutateAsync } = useMutation({
+    mutationFn: updatePassword,
+  });
+
   const handleUpdatePassword = async values => {
     try {
       setApiLoading(API_STATUS.LOADING);
-      const res = await axiosInstance.post('/user/update-password', {
+      const res = await updatePasswordMutateAsync({
         ...values,
         email: route?.params?.email,
       });
-      Toast.show({ type: 'success', text1: res.data.message });
+      Toast.show({ type: 'success', text1: res.message });
       setApiLoading(API_STATUS.SUCCESS);
       setTimeout(() => {
         navigation.navigate('LoginScreen');

@@ -10,48 +10,39 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 import Toast from 'react-native-toast-message';
 import { Formik } from 'formik';
-import * as Keychain from 'react-native-keychain';
 
-// components
+// src
 import { gap } from '@/utils/Spacing';
 import CustomInput from '@/components/CustomInput';
 import CustomButton from '@/components/CustomButton';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import Title from '@/components/Title';
-import { useDataContext } from '@/context/DataContext';
-import axiosInstance from '@/api/axiosInstance';
 import { singinSchema } from '@/validation/YupValidationSchema';
 import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
-import { API_STATUS, LOGIN_PROCESS } from '@/utils/Constants';
-import { NavigationState, useNavigation } from '@react-navigation/native';
+import { API_STATUS } from '@/utils/Constants';
 import { useAuthContext } from '@/hooks/useAuthContext';
+import { useMutation } from '@tanstack/react-query';
+import { login } from '@/api/auth.api';
 
 const Login = ({ navigation }) => {
+  const { updateSession } = useAuthContext();
   const {
     colors: { primary, textPrimary },
   } = useAppTheme();
-  // const navigation = useNavigation();
 
-  const { setAuthDetails } = useDataContext();
-  const { userLogin } = useAuthContext();
   const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
+
+  const { mutateAsync: loginMutateAsync, isPending } = useMutation({
+    mutationFn: login,
+  });
 
   const handleLogin = async value => {
     try {
-      console.log('value:', value);
       setApiLoading(API_STATUS.LOADING);
-      // const res = await axiosInstance.post('/user/login', value);
-      // console.log('handleLogin: ', res.data);
+      const res = await loginMutateAsync(value);
+      updateSession(res);
 
-      // // using Keychain instead of asyncLocalStorage because Keychain is secure
-      // // and Keychain store username and password so here username will be id and password will be token
-      // const { token, _id: id } = res.data;
-      // await Keychain.setGenericPassword(id, token);
-      // setAuthDetails(prev => ({ ...prev, isLoggedIn: LOGIN_PROCESS.START }));
-
-      await userLogin(value);
-
-      navigation.navigate('HomeScreen');
+      // navigation.navigate('HomeScreen');
     } catch (err) {
       setApiLoading(API_STATUS.FAILED);
       Toast.show({

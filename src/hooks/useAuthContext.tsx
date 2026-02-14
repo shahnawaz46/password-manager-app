@@ -1,17 +1,15 @@
 import { createContext, useContext } from 'react';
 
-interface IUser {
-  _id: string;
-  email: string;
-  fullName: string;
-  profileImage: string;
-}
+// types/interface
+import { IUpdateSessionArgs, IUser } from '@/types/user.interface';
 
 export interface IAuthContext {
   isLoading: boolean;
   isAuthenticated: boolean | null;
   user: IUser | null;
-  userLogin: (data: { email: string; password: string }) => Promise<void>;
+  updateSession: (data: IUpdateSessionArgs) => Promise<void>;
+  updateAuthUser: (data: IAuthContext['user']) => void;
+  logout: () => Promise<void>;
 }
 
 export const AuthContext = createContext<IAuthContext | undefined>(undefined);

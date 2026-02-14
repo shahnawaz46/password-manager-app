@@ -13,23 +13,18 @@ import CustomButton from '@/components/CustomButton';
 import { gap } from '@/utils/Spacing';
 import DropDown from '@/components/DropDown';
 import { vaultSchema } from '@/validation/YupValidationSchema';
-import axiosInstance from '@/api/axiosInstance';
-import { useDataContext } from '@/context/DataContext';
-import { encrypt } from '@/utils/EncDec';
 import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
 import { API_STATUS } from '@/utils/Constants';
-import { useSearchContext } from '@/context/SearchContext';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { addVaultItem, updateVaultItem } from '@/api/vault.api';
+import { vaultKeys } from '@/queries/query-keys';
+import {
+  updateInfiniteQueryVault,
+  updateVaultCount,
+} from '@/queries/vault-queries';
 
 const AddPassword = ({ route }) => {
-  // data context where passwords are stored
-  const { passwordList, setPasswordList } = useDataContext();
-
-  // search context for search/delete/edit search results
-  const {
-    searchPasswords: { searching },
-    editSearchResult,
-  } = useSearchContext();
-
+  const queryClient = useQueryClient();
   const [initialState, setInitialState] = useState({
     name: '',
     userName: '',
@@ -39,67 +34,69 @@ const AddPassword = ({ route }) => {
   const idRef = useRef(null);
   const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
 
-  const handlePassword = async (values, resetFormCB) => {
-    setApiLoading(API_STATUS.LOADING);
-
-    // encrypting userName and password of vault
-    const encrypted = await encrypt({
-      userName: values.userName,
-      password: values.password,
-    });
-
-    const newvalues = {
-      data: encrypted,
-      name: values.name,
-      category: values.category,
-    };
-
-    try {
-      const res = await axiosInstance.post('/password', newvalues);
-      const category = res.data.category.toLowerCase();
-      const { _id } = res.data;
-
-      // after password added to the database then updating the state
-      setPasswordList(prev => ({
-        ...prev,
-        all: {
-          ...prev.all,
-          data: {
-            ...prev.all.data,
-            vault: [{ _id, ...values }, ...prev.all.data.vault],
-          },
-        },
-        [category]: {
-          ...prev[category],
-          data: {
-            ...prev[category].data,
-            vault: [{ _id, ...values }, ...prev[category].data.vault],
-          },
-        },
-        count: {
-          ...prev.count,
-          all: (prev.count.all += 1),
-          [category]: (prev.count[category] += 1),
-        },
-      }));
-
-      // calling resetForm callback function after data updated on server and state
-      resetFormCB();
-
-      setApiLoading(API_STATUS.SUCCESS);
+  const { mutateAsync: addVaultItemMutateAsync, isPending } = useMutation({
+    mutationFn: addVaultItem,
+    onSuccess: res => {
       Toast.show({
         type: 'success',
         text1: 'Successfully Added',
         topOffset: 25,
       });
-    } catch (err) {
-      setApiLoading(API_STATUS.FAILED);
+
+      // update infinite query -> key(App or Browser)
+      queryClient.setQueryData([res.category], oldData =>
+        updateInfiniteQueryVault(oldData, res),
+      );
+
+      // update infinite query -> key(All)
+      queryClient.setQueryData([vaultKeys.ALL], oldData =>
+        updateInfiniteQueryVault(oldData, res),
+      );
+
+      // update useQuery 'COUNT'
+      queryClient.setQueryData([vaultKeys.COUNT], oldData =>
+        updateVaultCount(oldData, res.category, 'ADD'),
+      );
+    },
+    onError: err => {
       Toast.show({
         type: 'error',
         text1: err?.response?.data?.error || err?.message,
         topOffset: 25,
       });
-    }
+    },
+  });
+
+  const { mutateAsync: updateVaultItemMutateAsync } = useMutation({
+    mutationFn: updateVaultItem,
+    onSuccess: res => {
+      Toast.show({
+        type: 'success',
+        text1: 'Successfully Updated',
+        topOffset: 25,
+      });
+
+      queryClient.invalidateQueries([
+        vaultKeys.ALL,
+        vaultKeys.APP,
+        vaultKeys.BROWSER,
+        vaultKeys.COUNT,
+      ]);
+    },
+    onError: err => {
+      Toast.show({
+        type: 'error',
+        text1: err?.response?.data?.error || err?.message,
+        topOffset: 25,
+      });
+    },
+  });
+
+  const handlePassword = async (values, resetFormCB) => {
+    await addVaultItemMutateAsync(values);
+
+    // calling resetForm callback function after data updated on server and state
+    resetFormCB();
   };
 
   const handlePasswordEdit = async values => {
@@ -112,123 +109,23 @@ const AddPassword = ({ route }) => {
     });
 
     if (Object.keys(updatedValues).length === 0) return null;
-    setApiLoading(API_STATUS.LOADING);
 
-    //  after editing any field I am again encrypting the username and password
-    const encrypted = await encrypt({
-      userName: values.userName,
-      password: values.password,
+    await updateVaultItemMutateAsync({ ...values, _id: idRef.current });
+
+    // here i am not calling resetForm callback function like i am doing inside handlePassword function
+    // because in the case of edit password/vault i am updating initialState value inside useEffect
+    // so resetForm function will make no effect because initial value is filled not empty
+    // thats why here i am calling setInitialState after data updated on server
+    setInitialState({
+      category: '',
+      name: '',
+      password: '',
+      userName: '',
     });
-
-    // if userName or password is edited then i am removing it from the object because i am not passing plain userName or password
-    updatedValues?.userName && delete updatedValues.userName;
-    updatedValues?.password && delete updatedValues.password;
-
-    const newvalues = {
-      data: encrypted,
-      ...updatedValues,
-    };
-
-    try {
-      const res = await axiosInstance.patch('/password', {
-        _id: idRef.current,
-        ...newvalues,
-      });
-
-      const { _id } = res.data;
-      const oldCategory = initialState.category.toLowerCase();
-      const updatedCategory = res.data.category.toLowerCase();
-
-      // after password updated in database then updating the state
-      const all = {
-        ...passwordList.all,
-        data: {
-          ...passwordList.all.data,
-          vault: passwordList.all.data.vault.map(item =>
-            item._id === idRef.current ? { _id, ...values } : item,
-          ),
-        },
-      };
-
-      // if category is also updated then i have to remove edited data from old category and add into new category same for count
-      let updated = {};
-      if (updatedValues?.category) {
-        updated = {
-          [oldCategory]: {
-            ...passwordList[oldCategory],
-            data: {
-              ...passwordList[oldCategory].data,
-              vault: passwordList[oldCategory].data.vault.filter(
-                item => item._id !== idRef.current,
-              ),
-            },
-          },
-          [updatedCategory]: {
-            ...passwordList[updatedCategory],
-            data: {
-              ...passwordList[updatedCategory].data,
-              vault: [
-                { _id, ...values },
-                ...passwordList[updatedCategory].data.vault,
-              ],
-            },
-          },
-          count: {
-            ...passwordList.count,
-            [oldCategory]: (passwordList.count[oldCategory] -= 1),
-            [updatedCategory]: (passwordList.count[updatedCategory] += 1),
-          },
-        };
-      } else {
-        updated = {
-          [oldCategory]: {
-            ...passwordList[oldCategory],
-            data: {
-              ...passwordList[oldCategory].data,
-              vault: passwordList[oldCategory].data.vault.map(item =>
-                item._id === idRef.current ? { _id, ...values } : item,
-              ),
-            },
-          },
-        };
-      }
-
-      setPasswordList(prev => ({ ...prev, all, ...updated }));
-
-      // if user search any vault/password and then edit search result then i also have to edit data from search result state
-      if (searching) {
-        editSearchResult({ _id, ...values });
-      }
-
-      // here i am not calling resetForm callback function like i am doing inside handlePassword
-      // because in the case of edit password/vault i am updating initialState value inside useEffect
-      // so resetForm function will make no effect because initial value is filled not empty like in handlePassword
-      // thats why here i am calling setInitialState after data updated on server and state
-      setInitialState({
-        category: '',
-        name: '',
-        password: '',
-        userName: '',
-      });
-
-      setApiLoading(API_STATUS.SUCCESS);
-      Toast.show({
-        type: 'success',
-        text1: 'Successfully Updated',
-        topOffset: 25,
-      });
-    } catch (err) {
-      setApiLoading(API_STATUS.FAILED);
-      Toast.show({
-        type: 'error',
-        text1: err?.response?.data?.error || err?.message,
-        topOffset: 25,
-      });
-    }
   };
 
   // if route have params that means user is editing the vault
-  // so i have updating the initialState with value that i am getting from route.param
+  // so i am updating the initialState with the value that i am getting from route.param
   useEffect(() => {
     if (route?.params) {
       const { _id, ...rest } = route.params;
@@ -335,6 +232,7 @@ const AddPassword = ({ route }) => {
                   height={45}
                   fontSize={18}
                   onPress={handleSubmit}
+                  disabled={isPending}
                 />
               </View>
             )}

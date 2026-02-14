@@ -4,9 +4,8 @@ import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 // import SplashScreen from 'react-native-splash-screen';
 
 // components
-import DataContextProvider from './src/context/DataContext';
-import SearchContextProvider from './src/context/SearchContext';
 import NavigationContainer from '@/navigation/NavigationContainer';
+import QueryProvider from '@/providers/QueryProvider';
 import AuthProvider from '@/providers/AuthProvider';
 
 const toastConfig = {
@@ -44,14 +43,12 @@ const App = () => {
   return (
     <>
       <StatusBar />
-      <AuthProvider>
-        <DataContextProvider>
-          <SearchContextProvider>
-            <NavigationContainer />
-          </SearchContextProvider>
+      <QueryProvider>
+        <AuthProvider>
+          <NavigationContainer />
           <Toast config={toastConfig} />
-        </DataContextProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </QueryProvider>
     </>
   );
 };

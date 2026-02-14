@@ -8,6 +8,7 @@ import axiosInstance from '@/api/axiosInstance';
 // types/interface
 import type { ReactNode } from 'react';
 import type { IAuthContext } from '@/hooks/useAuthContext';
+import type { IUpdateSessionArgs } from '@/types/user.interface';
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -15,24 +16,24 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     useState<IAuthContext['isAuthenticated']>(null);
   const [user, setUser] = useState<IAuthContext['user']>(null);
 
-  const userLogin = async (data: { email: string; password: string }) => {
-    try {
-      setIsLoading(true);
-      const res = await axiosInstance.post('/user/login', data);
+  const updateSession = async (data: IUpdateSessionArgs) => {
+    const { token, ...rest } = data;
+    // Keychain store username and password
+    // so here username is _id and password is token
+    await Keychain.setGenericPassword(rest._id, token);
 
-      const { _id: id, token } = res.data;
-      // Keychain store username and password
-      // so here username is id and password is token
-      await Keychain.setGenericPassword(id, token);
+    setUser(rest);
+    setIsAuthenticated(true);
+  };
 
-      setUser(res.data);
-      setIsAuthenticated(true);
-    } catch (error) {
-      setIsAuthenticated(false);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+  const updateAuthUser = (data: IAuthContext['user']) => {
+    setUser(data);
+  };
+
+  const logout = async () => {
+    setIsAuthenticated(false);
+    await Keychain.resetGenericPassword();
+    setUser(null);
   };
 
   const getSession = async () => {
@@ -61,7 +62,16 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext value={{ isLoading, isAuthenticated, user, userLogin }}>
+    <AuthContext
+      value={{
+        isLoading,
+        isAuthenticated,
+        user,
+        updateSession,
+        updateAuthUser,
+        logout,
+      }}
+    >
       {children}
     </AuthContext>
   );

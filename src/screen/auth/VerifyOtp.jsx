@@ -3,27 +3,30 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons';
-import * as Keychain from 'react-native-keychain';
 
 // components
 import { gap } from '@/utils/Spacing';
 import CustomInput from '@/components/CustomInput';
 import CustomButton from '@/components/CustomButton';
 import { useAppTheme } from '@/hooks/useAppTheme';
-import { useDataContext } from '@/context/DataContext';
 import axiosInstance from '@/api/axiosInstance';
 import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
-import { API_STATUS, LOGIN_PROCESS } from '@/utils/Constants';
+import { API_STATUS } from '@/utils/Constants';
+import { useMutation } from '@tanstack/react-query';
+import { otpVerify } from '@/api/auth.api';
+import { useAuthContext } from '@/hooks/useAuthContext';
 
 const VerifyOtp = ({ navigation, route }) => {
+  const { updateSession } = useAuthContext();
   const {
     colors: { primary, textPrimary },
   } = useAppTheme();
-
-  const { setAuthDetails } = useDataContext();
-
   const [otp, setOTP] = useState(null);
   const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
+
+  const { mutateAsync: otpVerifyMutateAsync } = useMutation({
+    mutationFn: otpVerify,
+  });
 
   const handleVerifyOTP = async () => {
     if (otp === '' || otp === null) {
@@ -35,17 +38,15 @@ const VerifyOtp = ({ navigation, route }) => {
     }
     try {
       setApiLoading(API_STATUS.LOADING);
-      const res = await axiosInstance.post('/user/otp-verify', {
+      const res = await otpVerifyMutateAsync({
         otp,
         email: route?.params?.email,
         type: route?.params?.type,
       });
       if (route?.params?.type === 'signup') {
-        const { token, _id: id } = res.data;
-        await Keychain.setGenericPassword(id, token);
-        setAuthDetails(prev => ({ ...prev, isLoggedIn: LOGIN_PROCESS.START }));
+        updateSession(res);
       } else if (route?.params?.type === 'forgot-password') {
-        navigation.navigate('UpdatePasswordScreen', { email: res.data?.email });
+        navigation.navigate('UpdatePasswordScreen', { email: res?.email });
       }
     } catch (err) {
       setApiLoading(API_STATUS.FAILED);

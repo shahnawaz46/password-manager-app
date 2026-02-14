@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -25,39 +25,84 @@ import { useAppTheme } from '@/hooks/useAppTheme';
 import CustomButton from './CustomButton';
 import { gap } from '../utils/Spacing';
 import Loading from './Loading';
-import axiosInstance from '@/api/axiosInstance';
-import { useDataContext } from '../context/DataContext';
 import { API_STATUS } from '../utils/Constants';
 import LoadingAfterUpdate from './LoadingAfterUpdate';
-import { useSearchContext } from '../context/SearchContext';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
+import { deleteVaultItem, getVaultItems } from '@/api/vault.api';
+import { vaultKeys } from '@/queries/query-keys';
+import {
+  deleteVaultItemFromInfiteQuery,
+  updateVaultCount,
+} from '@/queries/vault-queries';
 
-const AllPasswords = ({
-  password,
-  status,
-  category,
-  filterCategory,
-  isShowingSearchResult,
-}) => {
+const AllPasswords = ({ selectedCategory, filterCategory }) => {
   const {
     colors: { textPrimary },
   } = useAppTheme();
-
-  const { next, vault } = password;
-
-  // data context where passwords are stored
-  const { setPasswordList, fetchPassword } = useDataContext();
-
-  // search context for search/delete/edit search results
-  const { deleteSearchResult, fetchMoreSearchData } = useSearchContext();
-
+  const queryClient = useQueryClient();
   const navigation = useNavigation();
   const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
-  const [paginating, setPaginating] = useState(false);
   const [modalVisible, setModalVisible] = useState({
     show: false,
     id: null,
-    categoryType: '',
+    category: '',
   });
+
+  const {
+    data: vaultItem,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: [selectedCategory],
+    queryFn: getVaultItems,
+    initialPageParam: `/password?category=${selectedCategory}`,
+    getNextPageParam: lastPage => lastPage.next ?? undefined,
+  });
+
+  // delete mutation
+  const { mutateAsync: deleteVaultItemMutateAsync } = useMutation({
+    mutationFn: ({ id, category }) => deleteVaultItem(id, category),
+    onSuccess: res => {
+      Toast.show({ type: 'success', text1: res?.data?.msg, topOffset: 25 });
+
+      // delete vault item from category(APP or Browser)
+      queryClient.setQueryData([res.category], oldData =>
+        deleteVaultItemFromInfiteQuery(oldData, res.id),
+      );
+
+      // delete vault item from category(All)
+      queryClient.setQueryData([vaultKeys.ALL], oldData =>
+        deleteVaultItemFromInfiteQuery(oldData, res.id),
+      );
+
+      // update vault count
+      queryClient.setQueryData([vaultKeys.COUNT], oldData =>
+        updateVaultCount(oldData, res.category, 'SUB'),
+      );
+    },
+    onError: err => {
+      Toast.show({
+        type: 'error',
+        text1: err?.response?.data?.error || err?.message,
+        topOffset: 25,
+      });
+    },
+  });
+
+  const flatListArray = useMemo(() => {
+    const flattedArray = [];
+    vaultItem?.pages?.forEach(item =>
+      flattedArray.push(...(item?.password || [])),
+    ) ?? [];
+    return flattedArray;
+  }, [vaultItem]);
 
   const copyPassword = password => {
     Clipboard.setString(password);
@@ -69,69 +114,8 @@ const AllPasswords = ({
     });
   };
 
-  const onDelete = async (id, categoryType) => {
-    try {
-      setApiLoading(API_STATUS.LOADING);
-      const res = await axiosInstance.delete('/password', { data: { id } });
-
-      // after deleted from the database i am also removing from state
-      const category = categoryType.toLowerCase();
-      setPasswordList(prev => ({
-        ...prev,
-        all: {
-          ...prev.all,
-          data: {
-            ...prev.all.data,
-            vault: prev.all.data.vault.filter(item => item._id !== id),
-          },
-        },
-        [category]: {
-          ...prev[category],
-          data: {
-            ...prev[category].data,
-            vault: prev[category].data.vault.filter(item => item._id !== id),
-          },
-        },
-        count: {
-          ...prev.count,
-          all: (prev.count.all -= 1),
-          [category]: (prev.count[category] -= 1),
-        },
-      }));
-
-      // if user search any vault/password and then delete search result then i also have to edit data from search result state
-      if (isShowingSearchResult) {
-        deleteSearchResult(id);
-      }
-
-      setApiLoading(API_STATUS.SUCCESS);
-      Toast.show({ type: 'success', text1: res.data.msg, topOffset: 25 });
-    } catch (err) {
-      setApiLoading(API_STATUS.FAILED);
-      Toast.show({
-        type: 'error',
-        text1: err?.response?.data?.error || err?.message,
-        topOffset: 25,
-      });
-    }
-  };
-
   const editVault = item => {
     navigation.navigate('AddPasswordScreen', item);
-  };
-
-  // pagination
-  const fetchMoreData = async () => {
-    if (paginating) return;
-
-    setPaginating(prev => !prev);
-    if (isShowingSearchResult && status === API_STATUS.SUCCESS) {
-      await fetchMoreSearchData(next);
-      setPaginating(prev => !prev);
-    } else if (status === API_STATUS.SUCCESS) {
-      await fetchPassword(category, next);
-      setPaginating(prev => !prev);
-    }
   };
 
   return (
@@ -146,29 +130,29 @@ const AllPasswords = ({
         <Text style={{ fontSize: 18, color: textPrimary }}>All Passwords</Text>
         <View style={styles.passwordCategory}>
           <CustomButton
-            title={'All'}
-            selected={category === 'All'}
-            onPress={() => filterCategory('All')}
+            title={vaultKeys.ALL}
+            selected={selectedCategory === vaultKeys.ALL}
+            onPress={() => filterCategory(vaultKeys.ALL)}
           />
           <CustomButton
-            title={'App'}
-            selected={category === 'App'}
-            onPress={() => filterCategory('App')}
+            title={vaultKeys.APP}
+            selected={selectedCategory === vaultKeys.APP}
+            onPress={() => filterCategory(vaultKeys.APP)}
           />
           <CustomButton
-            title={'Browser'}
-            selected={category === 'Browser'}
-            onPress={() => filterCategory('Browser')}
+            title={vaultKeys.BROWSER}
+            selected={selectedCategory === vaultKeys.BROWSER}
+            onPress={() => filterCategory(vaultKeys.BROWSER)}
           />
         </View>
 
         {/* list of passwords */}
-        {status === API_STATUS.LOADING ? (
+        {isLoading ? (
           <Loading />
         ) : (
           <View style={{ flex: 1, flexGrow: 1 }}>
             <FlatList
-              data={vault}
+              data={flatListArray}
               contentContainerStyle={styles.passwordCardContainer}
               keyExtractor={item => item._id}
               renderItem={({ item }) => (
@@ -230,7 +214,7 @@ const AllPasswords = ({
                             setModalVisible({
                               show: true,
                               id: item._id,
-                              categoryType: item.category,
+                              category: item.category,
                             })
                           }
                           style={{ padding: 10 }}
@@ -263,12 +247,11 @@ const AllPasswords = ({
                   <Text style={{ fontSize: 20 }}>Not Data Available</Text>
                 </View>
               )}
-              onEndReached={() => next && fetchMoreData()}
+              onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
               onEndReachedThreshold={0.5}
               ListFooterComponent={() =>
-                next && <ActivityIndicator size={38} color={'#6FD09A'} />
+                hasNextPage && <ActivityIndicator size={38} color={'#6FD09A'} />
               }
-              // debug={true}
             />
           </View>
         )}
@@ -279,7 +262,7 @@ const AllPasswords = ({
         transparent={true}
         visible={modalVisible.show}
         onRequestClose={() => {
-          setModalVisible({ show: false, id: null, categoryType: '' });
+          setModalVisible({ show: false, id: null, category: '' });
         }}
       >
         <View style={styles.centeredView}>
@@ -296,8 +279,11 @@ const AllPasswords = ({
                 fontSize={16}
                 borderRadius={8}
                 onPress={() => {
-                  onDelete(modalVisible.id, modalVisible.categoryType);
-                  setModalVisible({ show: false, id: null, categoryType: '' });
+                  deleteVaultItemMutateAsync({
+                    id: modalVisible.id,
+                    category: modalVisible.category,
+                  });
+                  setModalVisible({ show: false, id: null, category: '' });
                 }}
               />
               <CustomButton
@@ -306,7 +292,7 @@ const AllPasswords = ({
                 fontSize={16}
                 borderRadius={8}
                 onPress={() =>
-                  setModalVisible({ show: false, id: null, categoryType: '' })
+                  setModalVisible({ show: false, id: null, category: '' })
                 }
               />
             </View>

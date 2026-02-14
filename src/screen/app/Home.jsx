@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Image,
   StyleSheet,
@@ -13,51 +13,41 @@ import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import AllPasswords from '@/components/AllPasswords';
 import { gap } from '@/utils/Spacing';
-import { useDataContext } from '@/context/DataContext';
 import Title from '@/components/Title';
-import { API_STATUS } from '@/utils/Constants';
-import { initialState, useSearchContext } from '@/context/SearchContext';
 import { useAuthContext } from '@/hooks/useAuthContext';
+import { vaultCount } from '@/api/vault.api';
+import { useQuery } from '@tanstack/react-query';
+import { vaultKeys } from '@/queries/query-keys';
 
 const Home = ({ navigation }) => {
+  const { user } = useAuthContext();
   const {
     colors: { primary, textPrimary },
   } = useAppTheme();
+  const [selectedCategory, setSelectedCategory] = useState(vaultKeys.ALL);
+  const [searchInput, setSearchInput] = useState('');
 
-  // data context where passwords are stored
-  const { user } = useAuthContext();
-
-  const { passwordList, fetchPassword } = useDataContext();
-
-  // search context for search/delete/edit search results
-  const { searchPasswords, setSearchPasswords, onSearch } = useSearchContext();
-
-  const [category, setCategory] = useState('All');
+  const {
+    data: vaultCountData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: [vaultKeys.COUNT],
+    queryFn: vaultCount,
+  });
 
   // filter category
   const filterCategory = value => {
-    setSearchPasswords(initialState);
-
-    if (category === value) return;
-    setCategory(value);
+    if (selectedCategory === value) return;
+    setSelectedCategory(value);
   };
 
-  useEffect(() => {
-    // Immediately Invoked Function Expressions (IIFEs):
-    (async function () {
-      category === 'All' &&
-        passwordList.all.status === API_STATUS.LOADING &&
-        fetchPassword('All');
-
-      category === 'App' &&
-        passwordList.app.status === API_STATUS.LOADING &&
-        fetchPassword('App');
-
-      category === 'Browser' &&
-        passwordList.browser.status === API_STATUS.LOADING &&
-        fetchPassword('Browser');
-    })();
-  }, [category]);
+  const appVaultCount = vaultCountData?.find(
+    item => item.category === 'App',
+  )?.count;
+  const browserVaultCount = vaultCountData?.find(
+    item => item.category === 'Browser',
+  )?.count;
 
   return (
     <View style={styles.homeContainer}>
@@ -100,13 +90,13 @@ const Home = ({ navigation }) => {
         <Ionicons name="search-outline" size={26} />
 
         <TextInput
-          placeholder="Search Password"
+          placeholder="Search by website/App"
           style={{
             padding: 0,
             fontSize: 16,
             width: '100%',
           }}
-          onChangeText={e => onSearch(e, category)}
+          onChangeText={setSearchInput}
         />
       </View>
 
@@ -123,7 +113,7 @@ const Home = ({ navigation }) => {
           </View>
           <Text style={{ fontSize: 16, color: textPrimary }}>All</Text>
           <Text style={{ fontSize: 14 }}>
-            {passwordList?.count?.all || 0} Passwords
+            {appVaultCount + browserVaultCount || 0} Passwords
           </Text>
         </View>
         <View style={styles.passwordCategoryCard}>
@@ -137,7 +127,7 @@ const Home = ({ navigation }) => {
           </View>
           <Text style={{ fontSize: 16, color: textPrimary }}>Browser</Text>
           <Text style={{ fontSize: 14 }}>
-            {passwordList?.count?.browser || 0} Passwords
+            {browserVaultCount || 0} Passwords
           </Text>
         </View>
 
@@ -151,27 +141,14 @@ const Home = ({ navigation }) => {
             <Ionicons name="apps" color={primary} size={20} />
           </View>
           <Text style={{ fontSize: 16, color: textPrimary }}>App</Text>
-          <Text style={{ fontSize: 14 }}>
-            {passwordList?.count?.app || 0} Passwords
-          </Text>
+          <Text style={{ fontSize: 14 }}>{appVaultCount || 0} Passwords</Text>
         </View>
       </View>
 
       {/* list of all passwords */}
       <AllPasswords
-        password={
-          searchPasswords.searching
-            ? searchPasswords.data
-            : passwordList[category.toLowerCase()].data
-        }
-        status={
-          searchPasswords.searching
-            ? searchPasswords.status
-            : passwordList[category.toLowerCase()].status
-        }
-        category={category}
+        selectedCategory={selectedCategory}
         filterCategory={filterCategory}
-        isShowingSearchResult={searchPasswords.searching}
       />
     </View>
   );

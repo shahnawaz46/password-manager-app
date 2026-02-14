@@ -9,17 +9,21 @@ import { gap } from '@/utils/Spacing';
 import CustomInput from '@/components/CustomInput';
 import CustomButton from '@/components/CustomButton';
 import { useAppTheme } from '@/hooks/useAppTheme';
-import axiosInstance from '@/api/axiosInstance';
 import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
 import { API_STATUS } from '@/utils/Constants';
+import { useMutation } from '@tanstack/react-query';
+import { resentOTP } from '@/api/auth.api';
 
 const ForgotPassword = ({ navigation }) => {
   const {
     colors: { primary, textPrimary },
   } = useAppTheme();
-
   const [email, setEmail] = useState(null);
   const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
+
+  const { mutateAsync: resentOTPMutateAsync } = useMutation({
+    mutationFn: resentOTP,
+  });
 
   const handleVerifyEmail = async () => {
     if (email === '' || email === null) {
@@ -32,11 +36,12 @@ const ForgotPassword = ({ navigation }) => {
 
     try {
       setApiLoading(API_STATUS.LOADING);
-      const res = await axiosInstance.post('/user/resend-otp', {
+      const res = await resentOTPMutateAsync({
         email,
         type: 'forgot-password',
       });
-      Toast.show({ type: 'success', text1: res.data.message });
+
+      Toast.show({ type: 'success', text1: res.message });
       setApiLoading(API_STATUS.SUCCESS);
       setTimeout(() => {
         navigation.navigate('VerifyOtpScreen', {

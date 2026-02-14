@@ -7,16 +7,16 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { Formik } from 'formik';
 
 // components
-import { useDataContext } from '@/context/DataContext';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { gap } from '@/utils/Spacing';
 import CustomInput2 from '@/components/CustomInput2';
 import CustomButton from '@/components/CustomButton';
-import axiosInstance from '@/api/axiosInstance';
 import { accountUpdateSchema } from '@/validation/YupValidationSchema';
 import LoadingAfterUpdate from '@/components/LoadingAfterUpdate';
 import { API_STATUS } from '@/utils/Constants';
 import { useAuthContext } from '@/hooks/useAuthContext';
+import { useMutation } from '@tanstack/react-query';
+import { updateUser } from '@/api/user.api';
 
 const data = [
   { label: 'Male', value: 'Male' },
@@ -25,16 +25,33 @@ const data = [
 ];
 
 const AccountDetails = ({ navigation }) => {
+  const { user, updateAuthUser } = useAuthContext();
   const {
     colors: { textPrimary },
   } = useAppTheme();
 
-  const { user } = useAuthContext();
-  const { setAuthDetails } = useDataContext();
-
   const [accountDetails, setAccountDetails] = useState({});
   const [profileImage, setProfileImage] = useState({});
   const [apiLoading, setApiLoading] = useState(API_STATUS.IDLE);
+
+  const { mutateAsync: updateUserMutateAsync } = useMutation({
+    mutationFn: updateUser,
+    onSuccess: res => {
+      Toast.show({
+        type: 'success',
+        text1: 'Account Updated Successfully',
+        topOffset: 25,
+      });
+      updateAuthUser(res);
+    },
+    onError: err => {
+      Toast.show({
+        type: 'error',
+        text1: err?.response?.data?.error || err?.message,
+        topOffset: 25,
+      });
+    },
+  });
 
   const uploadImage = async setFieldValue => {
     try {
@@ -75,28 +92,7 @@ const AccountDetails = ({ navigation }) => {
       }
     });
 
-    try {
-      setApiLoading(API_STATUS.LOADING);
-      const res = await axiosInstance.patch('/user/update-profile', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data', // Required for FormData uploads
-        },
-      });
-      setAuthDetails(prev => ({ ...prev, userDetails: res.data }));
-      setApiLoading(API_STATUS.SUCCESS);
-      Toast.show({
-        type: 'success',
-        text1: 'Account Updated Successfully',
-        topOffset: 25,
-      });
-    } catch (err) {
-      setApiLoading(API_STATUS.FAILED);
-      Toast.show({
-        type: 'error',
-        text1: err?.response?.data?.error || err?.message,
-        topOffset: 25,
-      });
-    }
+    await updateUserMutateAsync(formData);
   };
 
   useEffect(() => {
